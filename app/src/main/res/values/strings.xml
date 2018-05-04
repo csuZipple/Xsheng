@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">xs</string>
+    <string name="app_chinese">形声</string>
+    <string name="app_name">形声</string>
+    <string name="app_english">phonetic</string>
+    <string name="team">Sirius</string>
 </resources>
