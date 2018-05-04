@@ -39,7 +39,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     /**
-     * used to jump pages
+     * It is used to jump pages
      */
     class SplashHandler implements Runnable{
         @Override
