@@ -3,4 +3,9 @@
     <string name="app_name">形声</string>
     <string name="app_english">phonetic</string>
     <string name="team">Sirius</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_camera_fragment">Hello camera fragment</string>
+    <string name="hello_user_fragment">Hello user fragment</string>
+    <string name="hello_video_fragment">Hello video fragment</string>
 </resources>
