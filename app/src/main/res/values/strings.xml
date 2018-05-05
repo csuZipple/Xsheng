@@ -8,4 +8,6 @@
     <string name="hello_camera_fragment">Hello camera fragment</string>
     <string name="hello_user_fragment">Hello user fragment</string>
     <string name="hello_video_fragment">Hello video fragment</string>
+    <string name="video_default_name">default</string>
+    <string name="default_length">00:15</string>
 </resources>

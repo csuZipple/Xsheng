@@ -36,10 +36,10 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_recycler_video_item,parent,false);
         VideoViewHolder holder = new VideoViewHolder(view);
         //add holder listener here. for example
-        holder.getTextView().setOnClickListener(new View.OnClickListener() {
+        holder.getPlay().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context,"you clicked this text",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"you clicked this play button",Toast.LENGTH_SHORT).show();
             }
         });
         return holder;
@@ -47,8 +47,10 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        //change child attribute here . for example
-         holder.getTextView().setText(videoList.get(position).getName());
+        //change child attribute here.
+         holder.getName().setText(videoList.get(position).getName());
+         holder.getTime().setText(videoList.get(position).getDeployed().toString());
+         holder.getLength().setText(videoList.get(position).getLength());
     }
 
     @Override

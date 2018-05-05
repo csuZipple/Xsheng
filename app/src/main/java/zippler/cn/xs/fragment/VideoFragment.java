@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.listener.RecyclerScrollListener;
 import zippler.cn.xs.listener.SwipedRefreshListener;
 import zippler.cn.xs.util.LinerLayoutManager;
+import zippler.cn.xs.util.MyDividerItemDecoration;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,7 +46,8 @@ public class VideoFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycle_view);
         LinerLayoutManager linerLayoutManager = new LinerLayoutManager(this.getContext());
         recyclerView.setLayoutManager(linerLayoutManager);
-
+//        recyclerView.addItemDecoration(new SpaceItemDecoration(0,10));//it worked no so good as we expected.
+        recyclerView.addItemDecoration(new MyDividerItemDecoration(this.getContext(),DividerItemDecoration.VERTICAL));//why Fragment context might be null?
         //inject data to recycler view == video adapter
         initVideo();
         RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos);
@@ -75,6 +79,8 @@ public class VideoFragment extends Fragment {
         for (int i = 0; i < 10; i++) {
             temp = new Video();
             temp.setName("video"+i);
+            temp.setLength("00:0"+i);
+            temp.setDeployed(new Timestamp(System.currentTimeMillis()));//set current time to test
             videos.add(temp);
         }
     }

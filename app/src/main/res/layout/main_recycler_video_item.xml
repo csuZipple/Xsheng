@@ -1,15 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
+    android:layout_height="220dp"
     android:layout_centerInParent="true">
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/app_english"/>
+   <ImageView
+       android:id="@+id/poster"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:src="@mipmap/poster"
+       android:adjustViewBounds="true"
+       android:scaleType="fitXY"
+       android:contentDescription="@string/app_english" />
+
+
+    <LinearLayout
+        android:id="@+id/extra"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="130dp"
+           android:orientation="vertical">
+           <TextView
+               android:id="@+id/video_name"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="土耳其...我喜欢你，像风走了八千里"
+               android:textSize="20sp"
+               android:padding="6dp"
+               android:textColor="#e8e8e8"/>
+           <TextView
+               android:id="@+id/video_time"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="2018年5月5日  20:16:41"
+               android:textSize="14sp"
+               android:paddingStart="10dp"
+               android:textColor="#e8e8e8"
+               tools:ignore="RtlSymmetry" />
+       </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <zippler.cn.xs.component.CircleImageView
+                android:id="@+id/avatar"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:adjustViewBounds="true"
+                android:src="@mipmap/avatar"
+                android:layout_alignParentStart="true"/>
+
+            <TextView
+                android:id="@+id/length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/default_length"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:layout_margin="8dp"
+                android:textSize="14sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:textColor="#e8e8e8"
+                android:background="@drawable/round_border"
+                />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@mipmap/play"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/app_chinese" />
+    </RelativeLayout>
 
 </RelativeLayout>

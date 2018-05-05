@@ -14,6 +14,8 @@ public class Video {
     private String desc;
     private Timestamp deployed;
     private int favorite;
+    private String poster;
+    private String length;//the total time of the video
 
     public int getId() {
         return id;
@@ -69,5 +71,21 @@ public class Video {
 
     public void setFavorite(int favorite) {
         this.favorite = favorite;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public String getLength() {
+        return length;
+    }
+
+    public void setLength(String length) {
+        this.length = length;
     }
 }
