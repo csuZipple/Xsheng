@@ -29,7 +29,7 @@
                android:id="@+id/video_name"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:text="土耳其...我还是喜欢你，像风走了八千里"
+               android:text="我还是喜欢你，像风走了八千里"
                android:typeface="serif"
                android:textSize="20sp"
                android:padding="6dp"
@@ -54,11 +54,12 @@
                   android:layout_height="wrap_content"
                   android:text="@string/default_author"
                   android:textSize="12sp"
-                  android:paddingStart="10dp"
-                  android:textColor="#e8e8e8"
+                  android:paddingStart="5dp"
+                  android:paddingEnd="5dp"
+                  android:textColor="@color/red_tags"
                   tools:ignore="RtlSymmetry"
                   android:layout_marginStart="10dp"
-                  android:background="@drawable/round_border"/>
+                  android:background="@drawable/hollow_round_border"/>
           </LinearLayout>
        </LinearLayout>
 

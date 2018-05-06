@@ -3,6 +3,7 @@ package zippler.cn.xs.component;
 /**
  * Created by zipple on 2018/3/2.
  * modified the KeyEventCompat class in 1553 line
+ * Enable preloading
  */
 
 import android.content.Context;
@@ -72,7 +73,7 @@ public class NoPreloadViewPager extends ViewGroup {
 
     private static final boolean USE_CACHE = false;
 
-    private static final int DEFAULT_OFFSCREEN_PAGES = 0;//默认是1
+    private static final int DEFAULT_OFFSCREEN_PAGES = 2;//default is 1,pre load pages
     private static final int MAX_SETTLE_DURATION = 600; // ms
 
     static class ItemInfo {

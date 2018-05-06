@@ -19,7 +19,6 @@ import zippler.cn.xs.listener.MainOnTabSelectedListener;
 
 public class MainActivity extends BaseActivity {
     private TabLayout tabLayout;
-//    private NoPreloadViewPager viewPager;
     private NoPreloadViewPager viewPager;
     private List<Fragment> fragments;
     @Override

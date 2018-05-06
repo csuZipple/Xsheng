@@ -20,10 +20,10 @@ public class SwipedRefreshListener implements SwipeRefreshLayout.OnRefreshListen
 
     @Override
     public void onRefresh() {
+        //how to delay 2 seconds?
         new Thread(){
             @Override
             public void run() {
-                super.run();
                 try {
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) {

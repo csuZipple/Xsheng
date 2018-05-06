@@ -7,4 +7,6 @@
     <color name="colorGrey">#dddddd</color>
     <color name="colorBlack">#e0000000</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="red_tags">#f55</color>
+    <color name="colorPink">#ea6f5a</color>
 </resources>

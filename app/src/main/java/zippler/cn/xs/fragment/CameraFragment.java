@@ -1,6 +1,7 @@
 package zippler.cn.xs.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.activity.RecordActivity;
 import zippler.cn.xs.adapter.RecyclerChooseMusicAdapter;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.util.LinerLayoutManager;
@@ -67,6 +69,12 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
          switch (v.getId()){
+             case R.id.upload:
+                 break;
+             case R.id.record:
+                 Intent intent = new Intent(this.getActivity(), RecordActivity.class);
+                 startActivity(intent);
+                 break;
              default:
                  Toast.makeText(this.getContext(),"default clicked",Toast.LENGTH_SHORT).show();
                  break;
@@ -102,7 +110,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         Music temp ;
         for (int i = 0; i < 10; i++) {
             temp = new Music();
-            temp.setName("Music_add_"+i);
+            temp.setName("music_add_"+i);
             temp.setLength("00:0"+i);
             musicList.add(temp);
         }
