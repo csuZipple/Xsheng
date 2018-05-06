@@ -3,6 +3,7 @@ package zippler.cn.xs.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import zippler.cn.xs.R;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
 
+
 /**
  * Created by Zipple on 2018/5/5.
  * Adapter for inject data
@@ -23,6 +25,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
 
     private Context context;
     private List<Video> videoList;
+    private String TAG=this.getClass().getSimpleName();
 
     public RecyclerVideoAdapter(Context context, List<Video> videoList) {
         this.context = context;
@@ -48,9 +51,16 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         //change child attribute here.
-         holder.getName().setText(videoList.get(position).getName());
-         holder.getTime().setText(videoList.get(position).getDeployed().toString());
-         holder.getLength().setText(videoList.get(position).getLength());
+         Video video = videoList.get(position);
+         if (video!=null){
+//             holder.getName().setText(video.getName());
+             holder.getTime().setText(video.getDeployed().toString());
+             holder.getLength().setText(video.getLength());
+         }else{
+             //keep default settings
+             Log.d(TAG, "onBindViewHolder: keep default settings.");
+         }
+
     }
 
     @Override

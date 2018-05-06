@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.util.StateBarUtil;
 
 /**
  * This activity is used for splash screen
@@ -19,6 +20,7 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        StateBarUtil.translucentStatusBar(this,true);
         showSplash();
     }
 

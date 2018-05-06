@@ -1,14 +1,13 @@
 package zippler.cn.xs.activity;
 
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import zippler.cn.xs.util.ActivityCollection;
-import zippler.cn.xs.util.StateBarUtil;
 
 public class BaseActivity extends AppCompatActivity implements View.OnClickListener {
     protected String TAG = getClass().getSimpleName();
@@ -16,7 +15,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityCollection.addActivity(this);
-        StateBarUtil.translucentStatusBar(this,true);//convert the status bar to transparency ...hide the title
+//        StateBarUtil.translucentStatusBar(this,true);//convert the status bar to transparency ...hide the title
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         if (actionBar!=null){
             actionBar.hide();

@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
  * Created by Zipple on 2018/5/5.
  * To delete the last line
  */
-public class MyDividerItemDecoration extends  RecyclerView.ItemDecoration  {
+public class RemoveLastLineDividerItemDecoration extends  RecyclerView.ItemDecoration  {
 
     public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
     public static final int VERTICAL = LinearLayout.VERTICAL;
@@ -40,7 +40,7 @@ public class MyDividerItemDecoration extends  RecyclerView.ItemDecoration  {
      * @param context Current context, it will be used to access resources.
      * @param orientation Divider orientation. Should be {@link #HORIZONTAL} or {@link #VERTICAL}.
      */
-    public MyDividerItemDecoration(Context context, int orientation) {
+    public RemoveLastLineDividerItemDecoration(Context context, int orientation) {
         final TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         if (mDivider == null) {
