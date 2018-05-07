@@ -1,8 +1,14 @@
 package zippler.cn.xs.fragment;
 
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -19,12 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.activity.PreviewActivity;
 import zippler.cn.xs.activity.RecorderActivity;
 import zippler.cn.xs.adapter.RecyclerChooseMusicAdapter;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.RemoveLastLineDividerItemDecoration;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
 
 /**
@@ -36,6 +44,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     private LinearLayout upload;
     private LinearLayout record;
     private RelativeLayout search;
+
+    //local video code
+    private static final int REQUEST_VIDEO_CODE = 0;
+
 
     //data
     private List<Music> musicList;
@@ -70,6 +82,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
          switch (v.getId()){
              case R.id.upload:
+                 openLocalVideos();
                  break;
              case R.id.record:
                  Intent intent = new Intent(this.getActivity(), RecorderActivity.class);
@@ -114,6 +127,49 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
             temp.setLength("00:0"+i);
             musicList.add(temp);
         }
+    }
+
+    /**
+     * open local videos view
+     */
+    private void openLocalVideos(){
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_VIDEO_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode==REQUEST_VIDEO_CODE){
+            if (resultCode == RESULT_OK){
+                Uri uri = data.getData();
+                ContentResolver cr = this.getActivity().getContentResolver();
+                assert uri!=null;
+                Cursor cursor = cr.query(uri, null, null, null, null);
+                if (cursor != null) {
+                    String videoPath = "initial video path";
+                    if (cursor.moveToFirst()) {
+                        int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
+                         videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                        int duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
+                        long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
+
+                        String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                        int imageId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                        Bitmap bitmap1 = MediaStore.Video.Thumbnails.getThumbnail(cr, imageId, MediaStore.Video.Thumbnails.MICRO_KIND, null);
+
+                        Bitmap bitmap2 = ThumbnailUtils.createVideoThumbnail(imagePath, MediaStore.Video.Thumbnails.MICRO_KIND);
+                    }
+                    cursor.close();
+                    Intent intent = new Intent(this.getActivity(), PreviewActivity.class);
+                    intent.putExtra("videoPath",videoPath);
+                    startActivity(intent);
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public RecyclerView getRecyclerView() {

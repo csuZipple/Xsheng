@@ -2,6 +2,8 @@ package zippler.cn.xs.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.MediaPlayer;
@@ -9,6 +11,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,7 +20,9 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import zippler.cn.xs.R;
 
@@ -41,8 +46,11 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private String savedVideoPath;
     private int backCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private int frontCamera = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private boolean isLightOn;
     private boolean isBackCameraOn ;
     private boolean isRecordOn = false;
+
+    private float oldDist =1f;
 
     //listener
 
@@ -73,16 +81,37 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         reverse.setOnClickListener(this);
         recordBtn.setOnClickListener(this);
         nextStep.setOnClickListener(this);
+
+        addTouchListeners();
+    }
+
+
+    private void addTouchListeners() {
+
+        preview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getPointerCount()==1){
+                    touchFocus(event);
+                }else {
+                    changeZoom(event);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.back:
+                finish();
                 break;
             case R.id.exposure:
+                switchFlash();
                 break;
             case R.id.camera_id:
+                switchCamera();
                 break;
             case R.id.record_btn:
                 startRecord();
@@ -151,6 +180,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
      */
 
 
+
     /**
      * open camera
      * @param position which camera
@@ -158,15 +188,23 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private void openCamera(int position) {
         isBackCameraOn = (position == Camera.CameraInfo.CAMERA_FACING_BACK);
 
-         camera = Camera.open(position);
-         parameters = camera.getParameters();
+        camera = Camera.open(position);
+        if (parameters==null){
+            parameters = camera.getParameters();
+            isLightOn = false;
+            //set auto focused , There should be a clicking focus feature here
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
+            int length = previewSizes.size();
+            for (int i = 0; i < length; i++) {
+                Log.d(TAG,"SupportedPreviewSizes : " + previewSizes.get(i).width + "x" + previewSizes.get(i).height);
+            }
+            parameters.setPreviewSize(1920,1080);//choose the right size of phone.
+        }
 
-         //set auto focused , There should be a clicking focus feature here
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        parameters.setPreviewSize(1920,1080);//choose the right size of phone.
 
         camera.setParameters(parameters);
-        camera.setDisplayOrientation(90);
+        camera.setDisplayOrientation(90);//but the front camera is mirror
         try {
             camera.setPreviewTexture(surface);
         } catch (IOException e) {
@@ -179,11 +217,13 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private void startRecord(){
         if (!isRecordOn){
             isRecordOn = true;
+            recordBtn.setImageResource(R.mipmap.stop);
             playMusic(R.raw.di);
             record();
         }else{
             isRecordOn = false;
             playMusic(R.raw.po);
+            recordBtn.setImageResource(R.mipmap.record);
             stop();
 
             Intent intent = new Intent(this,PreviewActivity.class);
@@ -239,6 +279,119 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         mediaRecorder.stop();
         mediaRecorder.release();
     }
+
+
+    private void switchCamera(){
+        releaseCamera();
+        if (isBackCameraOn){
+            openCamera(frontCamera);
+        }else{
+            openCamera(backCamera);
+        }
+    }
+
+    private void releaseCamera(){
+        camera.stopPreview();
+        camera.release();
+        camera = null;
+    }
+
+    private void switchFlash(){
+         if (parameters!=null){
+             if (!isLightOn){
+                 exposure.setImageResource(R.mipmap.exposure);
+                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                 isLightOn = true;
+                 camera.setParameters(parameters);
+             }else{
+                 exposure.setImageResource(R.mipmap.flash_off);
+                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                 isLightOn = false;
+                 camera.setParameters(parameters);
+             }
+         }
+    }
+
+    /**
+     * scaling
+     * @param event touch event
+     */
+    private void changeZoom(MotionEvent event){
+        Log.d(TAG, "changeZoom: scaling");
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+                oldDist = getFingerSpacing(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float newDist = getFingerSpacing(event);
+                if (newDist >1.1 * oldDist) {
+                    handleZoom(true);
+                } else if (newDist < oldDist) {
+                    handleZoom(false);
+                }
+                oldDist = newDist;
+                break;
+        }
+    }
+
+    private void handleZoom(boolean isZoomIn) {
+        Camera.Parameters params = camera.getParameters();
+        if (params.isZoomSupported()) {
+            int maxZoom = params.getMaxZoom();
+            int zoom = params.getZoom();
+            if (isZoomIn && zoom < maxZoom) {
+                zoom++;
+            } else if (zoom > 0) {
+                zoom--;
+            }
+            params.setZoom(zoom);
+            //there should be set the corresponding clarity
+            camera.setParameters(params);
+        } else {
+            Log.i(TAG, "zoom not supported");
+        }
+    }
+
+    private void touchFocus(MotionEvent event){
+
+        Log.d(TAG, "touchFocus: 点击，对焦区域");
+
+        Camera.Parameters params = camera.getParameters();
+        Camera.Size previewSize = params.getPreviewSize();
+        Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f, previewSize);
+
+        camera.cancelAutoFocus();
+        if (params.getMaxNumFocusAreas() > 0) {
+            List<Camera.Area> focusAreas = new ArrayList<>();
+            focusAreas.add(new Camera.Area(focusRect, 800));
+            params.setFocusAreas(focusAreas);
+        } else {
+            Log.i(TAG, "focus areas not supported");
+        }
+
+        Rect meteringRect = calculateTapArea(event.getX(), event.getY(), 1.5f, previewSize);
+        if (params.getMaxNumMeteringAreas() > 0) {
+            List<Camera.Area> meteringAreas = new ArrayList<>();
+            meteringAreas.add(new Camera.Area(meteringRect, 800));
+            params.setMeteringAreas(meteringAreas);
+        } else {
+            Log.i(TAG, "metering areas not supported");
+        }
+
+        final String currentFocusMode = params.getFocusMode();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+        camera.setParameters(params);
+
+        camera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                Camera.Parameters params = camera.getParameters();
+                params.setFocusMode(currentFocusMode);
+                camera.setParameters(params);
+            }
+        });
+    }
+
     /**
      * about utils function
      */
@@ -268,6 +421,37 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         if (!file.exists()) {
             file.mkdirs();
         }
+    }
+
+    private Rect calculateTapArea(float x, float y, float coefficient, Camera.Size previewSize) {
+        float focusAreaSize = 300;
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
+        int centerX = (int) (x / previewSize.width - 1000);
+        int centerY = (int) (y / previewSize.height - 1000);
+
+        int left = clamp(centerX - areaSize / 2, -1000, 1000);
+        int top = clamp(centerY - areaSize / 2, -1000, 1000);
+
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
+    }
+
+    private  int clamp(int x, int min, int max) {
+        if (x > max) {
+            return max;
+        }
+        if (x < min) {
+            return min;
+        }
+        return x;
+    }
+
+
+    private  float getFingerSpacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
     }
 
 }

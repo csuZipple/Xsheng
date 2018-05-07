@@ -22,14 +22,15 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:src="@mipmap/back"
+            android:layout_marginStart="10dp"
             android:contentDescription="@string/app_english" />
 
         <ImageView
             android:id="@+id/exposure"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerInParent="true"
-            android:background="@drawable/selector_capture_light"
+            android:src="@mipmap/flash_off"
             android:contentDescription="@string/app_english"/>
 
         <ImageView
