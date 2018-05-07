@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zippler.cn.xs.R;
-import zippler.cn.xs.activity.RecordActivity;
+import zippler.cn.xs.activity.RecorderActivity;
 import zippler.cn.xs.adapter.RecyclerChooseMusicAdapter;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.util.LinerLayoutManager;
@@ -72,7 +72,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
              case R.id.upload:
                  break;
              case R.id.record:
-                 Intent intent = new Intent(this.getActivity(), RecordActivity.class);
+                 Intent intent = new Intent(this.getActivity(), RecorderActivity.class);
                  startActivity(intent);
                  break;
              default:
