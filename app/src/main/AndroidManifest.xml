@@ -25,7 +25,7 @@
         <activity android:name=".activity.BaseActivity" />
         <activity android:name=".activity.GuideActivity" />
         <activity android:name=".activity.PreviewActivity" />
-        <activity android:name=".activity.RecorderActivity"></activity>
+        <activity android:name=".activity.RecorderActivity"/>
     </application>
 
 </manifest>
