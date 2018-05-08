@@ -5,9 +5,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="zippler.cn.xs.activity.PreviewActivity">
-   <TextView
-       android:id="@+id/path"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:layout_centerInParent="true"/>
+
+
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical">
+
+      <zippler.cn.xs.component.FullVideoView
+          android:id="@+id/video"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"/>
+
+      <!--可能需要对预览视频进行编辑-->
+      <android.support.v7.widget.RecyclerView
+          android:id="@+id/thumbnails"
+          android:layout_width="match_parent"
+          android:layout_height="60dp"
+          android:background="#000000"
+          >
+
+      </android.support.v7.widget.RecyclerView>
+   </LinearLayout>
+
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="40dp">
+      <ImageView
+          android:id="@+id/back_preview"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:src="@mipmap/back"
+          android:layout_marginStart="10dp"
+          android:contentDescription="@string/app_english" />
+
+
+
+      <TextView
+          android:id="@+id/next_step_after_preview"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_alignParentEnd="true"
+          android:padding="5dp"
+          android:textColor="@color/colorWhite"
+          android:background="@drawable/pink_background"
+          android:layout_marginEnd="10dp"
+          android:text="@string/next_step"
+          tools:ignore="RelativeOverlap" />
+   </RelativeLayout>
+
+   <ImageView
+       android:id="@+id/play_btn"
+       android:visibility="gone"
+       android:layout_width="40dp"
+       android:layout_height="40dp"
+       android:layout_centerInParent="true"
+       android:src="@mipmap/play"
+       android:contentDescription="@string/app_english"/>
+
+
+
 </RelativeLayout>

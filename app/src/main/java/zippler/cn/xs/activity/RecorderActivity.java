@@ -259,7 +259,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
         //save video
         String root = getCamera2Path();
-        createSavePath(root);//判断有没有这个文件夹，没有的话需要创建
+        createSavePath(root);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         savedVideoPath = root + "形声_" + timeStamp + ".mp4";
         mediaRecorder.setOutputFile(savedVideoPath);

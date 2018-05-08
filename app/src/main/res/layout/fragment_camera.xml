@@ -16,7 +16,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
-            android:padding="4dp">
+            android:padding="4dp"
+            tools:ignore="UseCompoundDrawables">
             <TextView
                 android:id="@+id/upload_text"
                 android:layout_width="wrap_content"
@@ -47,15 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:padding="4dp">
-            <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="@string/auto_bgm"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:textSize="14sp"-->
-                <!--android:textColor="#2c2c2c"-->
-                <!--/>-->
+            android:padding="4dp"
+            tools:ignore="RelativeOverlap">
 
             <TextView
                 android:id="@+id/next_step"
@@ -63,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 android:textColor="@color/colorWhite"
-                android:background="@drawable/pink_disable_background"
+                android:background="@drawable/blue_background"
                 android:layout_marginEnd="10dp"
                 android:text="@string/auto_bgm"
                 tools:ignore="RelativeOverlap" />
