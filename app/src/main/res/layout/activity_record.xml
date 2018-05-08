@@ -58,6 +58,20 @@
             tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
+
+    <ProgressBar
+        android:id="@+id/record_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminateDrawable="@drawable/progressbar"
+        android:max="100"
+        android:progress="0"
+        android:visibility="invisible" />
+
    <ImageView
        android:id="@+id/record_btn"
        android:layout_width="70dp"
@@ -69,5 +83,6 @@
        android:layout_centerHorizontal="true"
        android:src="@mipmap/record"
        android:contentDescription="@string/app_english"/>
+
 
 </RelativeLayout>

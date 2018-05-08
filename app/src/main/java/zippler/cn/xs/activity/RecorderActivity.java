@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -35,6 +36,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private ImageView reverse;
     private ImageView recordBtn;
     private TextView nextStep;
+    private ProgressBar record_progress;
 
     private SurfaceTexture surface;
 
@@ -51,9 +53,11 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private boolean isRecordOn = false;
 
     private float oldDist =1f;
+    private static final int DURATION = 15000 ;//set max video duration
 
     //listener
 
+    private VideoCaptureDurationListener durationListener ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +76,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         reverse = findViewById(R.id.camera_id);
         recordBtn = findViewById(R.id.record_btn);
         nextStep = findViewById(R.id.next_step);
+        record_progress = findViewById(R.id.record_progress);
     }
 
     private void registerListeners(){
@@ -217,18 +222,17 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private void startRecord(){
         if (!isRecordOn){
             isRecordOn = true;
-            recordBtn.setImageResource(R.mipmap.stop);
+            record_progress.setVisibility(View.VISIBLE);
+//            recordBtn.setImageResource(R.mipmap.stop);
+            recordBtn.setImageResource(R.mipmap.record);
             playMusic(R.raw.di);
             record();
         }else{
             isRecordOn = false;
+            record_progress.setVisibility(View.INVISIBLE);
             playMusic(R.raw.po);
             recordBtn.setImageResource(R.mipmap.record);
             stop();
-
-            Intent intent = new Intent(this,PreviewActivity.class);
-            intent.putExtra("videoPath",savedVideoPath);
-            startActivity(intent);
         }
     }
 
@@ -255,6 +259,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         }
 
         //set record lengths here.
+        mediaRecorder.setMaxDuration(DURATION);
+        durationListener = new VideoCaptureDurationListener();
+        mediaRecorder.setOnInfoListener(durationListener);
 
 
         //save video
@@ -278,6 +285,11 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         camera.lock();
         mediaRecorder.stop();
         mediaRecorder.release();
+
+
+        Intent intent = new Intent(this,PreviewActivity.class);
+        intent.putExtra("videoPath",savedVideoPath);
+        startActivity(intent);
     }
 
 
@@ -391,6 +403,22 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
             }
         });
     }
+
+
+    /**
+     * listener
+     */
+
+    private class VideoCaptureDurationListener implements MediaRecorder.OnInfoListener{
+        @Override
+        public void onInfo(MediaRecorder mr, int what, int extra) {
+            if(what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED){
+                Log.d("DurationListener", "Maximum Duration Reached");
+                stop();
+            }
+        }
+    }
+
 
     /**
      * about utils function
