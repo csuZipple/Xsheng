@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import zippler.cn.xs.activity.PreviewActivity;
 import zippler.cn.xs.activity.RecorderActivity;
 import zippler.cn.xs.adapter.RecyclerChooseMusicAdapter;
 import zippler.cn.xs.entity.Music;
-import zippler.cn.xs.util.LinerLayoutManager;
+import zippler.cn.xs.util.LinearScrollLayoutManager;
 import zippler.cn.xs.util.RemoveLastLineDividerItemDecoration;
 
 import static android.app.Activity.RESULT_OK;
@@ -44,6 +45,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     private LinearLayout upload;
     private LinearLayout record;
     private RelativeLayout search;
+
+    private ScrollView scrollView;
 
     //local video code
     private static final int REQUEST_VIDEO_CODE = 0;
@@ -65,7 +68,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         initViews(view);
         registerListeners();
 
-        LinerLayoutManager linerLayoutManager = new LinerLayoutManager(this.getContext());
+        LinearScrollLayoutManager linerLayoutManager = new LinearScrollLayoutManager(this.getContext());
         recyclerView.setLayoutManager(linerLayoutManager);
         recyclerView.addItemDecoration(new RemoveLastLineDividerItemDecoration(this.getContext(), DividerItemDecoration.VERTICAL));
 
@@ -75,6 +78,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         RecyclerChooseMusicAdapter musicAdapter = new RecyclerChooseMusicAdapter(this.getContext(),musicList);
         recyclerView.setAdapter(musicAdapter);
 
+        recyclerView.setFocusable(false); //fixed scrollview scrolling to top after loading data in recycler view
         return view;
     }
 
@@ -103,6 +107,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         upload = view.findViewById(R.id.upload);
         record = view.findViewById(R.id.record);
         search = view.findViewById(R.id.search);
+        scrollView = view.findViewById(R.id.scroll_view);
     }
 
     /**
