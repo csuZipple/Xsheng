@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.component.LinearProgressBar;
 
 /**
  * Created by Zipple on 2018/5/6.
@@ -17,6 +18,7 @@ public class MusicViewHolder extends RecyclerView.ViewHolder {
     private TextView musicAuthor;
     private TextView musicLength;
     private ImageView play;
+    private LinearProgressBar musicProgress;
 
     public MusicViewHolder(View itemView) {
         super(itemView);
@@ -25,6 +27,7 @@ public class MusicViewHolder extends RecyclerView.ViewHolder {
         musicAuthor = itemView.findViewById(R.id.music_author);
         musicLength = itemView.findViewById(R.id.music_length);
         play = itemView.findViewById(R.id.music_play);
+        musicProgress= itemView.findViewById(R.id.music_progress);
     }
 
     public ImageView getMusicAvatar() {
@@ -65,5 +68,13 @@ public class MusicViewHolder extends RecyclerView.ViewHolder {
 
     public void setPlay(ImageView play) {
         this.play = play;
+    }
+
+    public LinearProgressBar getMusicProgress() {
+        return musicProgress;
+    }
+
+    public void setMusicPogress(LinearProgressBar musicProgress) {
+        this.musicProgress = musicProgress;
     }
 }

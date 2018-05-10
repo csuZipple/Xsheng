@@ -12,6 +12,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.component.LinearProgressBar;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.holder.MusicViewHolder;
 
@@ -52,7 +53,11 @@ public class RecyclerChooseMusicAdapter extends RecyclerView.Adapter<MusicViewHo
 //        holder.getMusicAuthor().setText();
         holder.getMusicLength().setText(music.getLength());
 //        holder.getMusicAvatar().setImageURI(Uri.parse(music.getPoster()));
-
+        LinearProgressBar view1 = holder.getMusicProgress();
+        //set progress here.
+        /*int progress1 = view1.getProgress();
+        view1.updatePaintColors();
+        view1.setProgress(progress1);*/
     }
 
     @Override

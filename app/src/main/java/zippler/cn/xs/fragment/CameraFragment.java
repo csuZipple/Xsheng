@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +30,7 @@ import zippler.cn.xs.activity.RecorderActivity;
 import zippler.cn.xs.adapter.RecyclerChooseMusicAdapter;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.util.LinearScrollLayoutManager;
-import zippler.cn.xs.util.RemoveLastLineDividerItemDecoration;
+import zippler.cn.xs.util.SpaceItemDecoration;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -70,7 +69,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
         LinearScrollLayoutManager linerLayoutManager = new LinearScrollLayoutManager(this.getContext());
         recyclerView.setLayoutManager(linerLayoutManager);
-        recyclerView.addItemDecoration(new RemoveLastLineDividerItemDecoration(this.getContext(), DividerItemDecoration.VERTICAL));
+//        recyclerView.addItemDecoration(new RemoveLastLineDividerItemDecoration(this.getContext(), DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new SpaceItemDecoration(0,4));
 
         Log.d(TAG, "onCreateView: music init");
         initMusic();
