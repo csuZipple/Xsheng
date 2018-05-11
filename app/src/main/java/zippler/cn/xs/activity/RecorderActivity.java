@@ -10,6 +10,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.TextureView;
@@ -25,7 +26,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import VideoHandle.EpEditor;
+import VideoHandle.EpVideo;
 import zippler.cn.xs.R;
+import zippler.cn.xs.handler.RecordTimerRunnable;
+import zippler.cn.xs.listener.CombinedOnEditorListener;
 
 public class RecorderActivity extends BaseActivity implements TextureView.SurfaceTextureListener{
 
@@ -36,7 +41,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private ImageView reverse;
     private ImageView recordBtn;
     private TextView nextStep;
-    private ProgressBar record_progress;
+    private ProgressBar record_circle_progress;
+    private ProgressBar record_line_progress;
+    private ImageView pauseBtn;
 
     private SurfaceTexture surface;
 
@@ -46,6 +53,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private MediaPlayer music;
     private MediaRecorder mediaRecorder;
     private String savedVideoPath;
+    private List<String> old = new ArrayList<>();//old path
     private int backCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private int frontCamera = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private boolean isLightOn;
@@ -56,8 +64,13 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private static final int DURATION = 15000 ;//set max video duration
 
     //listener
-
     private VideoCaptureDurationListener durationListener ;
+
+    //timer
+    private Handler handler;
+    private RecordTimerRunnable runnable;
+    private int time = 15;//15s
+    private int progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +80,8 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
         initViews();
         registerListeners();
+
+        handler = new Handler();
     }
 
     private void initViews(){
@@ -76,7 +91,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         reverse = findViewById(R.id.camera_id);
         recordBtn = findViewById(R.id.record_btn);
         nextStep = findViewById(R.id.next_step);
-        record_progress = findViewById(R.id.record_progress);
+        record_circle_progress = findViewById(R.id.record_progress);
+        record_line_progress = findViewById(R.id.record_line_progress);
+        pauseBtn = findViewById(R.id.pause_btn);
     }
 
     private void registerListeners(){
@@ -86,6 +103,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         reverse.setOnClickListener(this);
         recordBtn.setOnClickListener(this);
         nextStep.setOnClickListener(this);
+        pauseBtn.setOnClickListener(this);
 
         addTouchListeners();
     }
@@ -122,6 +140,13 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
                 startRecord();
                 break;
             case R.id.next_step:
+                //内存bug崩溃
+                stop();
+                gotoPreview();
+                break;
+            case R.id.pause_btn:
+                //waiting for combine video
+                pause();
                 break;
             default:
                 Log.d(TAG, "onClick: default clicked");
@@ -142,7 +167,10 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     @Override
     protected void onPause() {
         super.onPause();
+        finish();//finished this activity! there is no back page
     }
+
+
 
     @Override
     protected void onResume() {
@@ -171,6 +199,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         //release resources
         camera.stopPreview();
         camera.release();
+        if (mediaRecorder!=null){
+            mediaRecorder.release();
+        }
         return false;
     }
 
@@ -199,11 +230,6 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
             isLightOn = false;
             //set auto focused , There should be a clicking focus feature here
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
-            int length = previewSizes.size();
-            for (int i = 0; i < length; i++) {
-                Log.d(TAG,"SupportedPreviewSizes : " + previewSizes.get(i).width + "x" + previewSizes.get(i).height);
-            }
             parameters.setPreviewSize(1920,1080);//choose the right size of phone.
         }
 
@@ -221,25 +247,56 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
     private void startRecord(){
         if (!isRecordOn){
-            isRecordOn = true;
-            record_progress.setVisibility(View.VISIBLE);
-//            recordBtn.setImageResource(R.mipmap.stop);
+            record_circle_progress.setVisibility(View.VISIBLE);
+            record_line_progress.setVisibility(View.VISIBLE);
+            reverse.setVisibility(View.GONE);//maybe invisible
+            recordBtn.setImageResource(R.mipmap.stop);
             recordBtn.setImageResource(R.mipmap.record);
             playMusic(R.raw.di);
+            startTimer();//begin
             record();
         }else{
-            isRecordOn = false;
-            record_progress.setVisibility(View.INVISIBLE);
-            playMusic(R.raw.po);
-            recordBtn.setImageResource(R.mipmap.record);
-            stop();
+            stop();//how to continue..?
+            gotoPreview();
+
         }
     }
 
+    /**
+     * started the timer
+     */
+    private void startTimer(){
+        Log.d(TAG, "startTimer: ");
+        runnable = new RecordTimerRunnable(progress,time);
+        runnable.setHandler(handler);
+        runnable.setProgressBar(record_line_progress);
+        handler.postDelayed(runnable,1000);
+    }
 
-    private void record() {
+    /**
+     * stop the timer
+     */
+    private void pauseTimer(){
+        progress = runnable.getProgress();//get current progress
+        time = runnable.getTime();//get current remained time;
+        handler.removeCallbacks(runnable);
+        runnable = null;
+        Log.d(TAG, "pauseTimer: pause running");
+    }
+
+    /**
+     * continue the timer
+     */
+    private void continueTimer(){
+        //if the timing is over.
+        startTimer();
+    }
+
+    private void prepare(){
         mediaRecorder = new MediaRecorder();
+        camera.lock();
         camera.unlock();
+
         mediaRecorder.setCamera(camera);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
@@ -262,8 +319,11 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         mediaRecorder.setMaxDuration(DURATION);
         durationListener = new VideoCaptureDurationListener();
         mediaRecorder.setOnInfoListener(durationListener);
+    }
 
-
+    private void record() {
+        prepare();
+        isRecordOn = true;
         //save video
         String root = getCamera2Path();
         createSavePath(root);
@@ -281,15 +341,88 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
 
+    /**
+     * stop record
+     */
     private void stop() {
+        Log.d(TAG, "stop: stop record videos");
+        isRecordOn = false;
+        record_circle_progress.setVisibility(View.INVISIBLE);
+        playMusic(R.raw.po);
+        recordBtn.setImageResource(R.mipmap.record);
+        reverse.setVisibility(View.VISIBLE);
+
         camera.lock();
         mediaRecorder.stop();
         mediaRecorder.release();
+    }
 
-
+    private void gotoPreview(){
+        String combinedPath;
+        Log.d(TAG, "stop: jump to preview");
         Intent intent = new Intent(this,PreviewActivity.class);
-        intent.putExtra("videoPath",savedVideoPath);
+        old.add(savedVideoPath);
+        if (old.size()>1){
+            combinedPath = combinedVideos(old);
+            //remove the two videos
+          /*  File file;
+            for (String path:old){
+                file = new File(path);
+                if (file.exists()){
+                    if (file.delete()){
+                        Log.d(TAG, "gotoPreview: delete old videos :"+path.substring(path.lastIndexOf("/")));
+                    }
+                }
+            }*/
+            intent.putExtra("videoPath",combinedPath);
+        }else{
+            intent.putExtra("videoPath",savedVideoPath);
+        }
         startActivity(intent);
+    }
+
+    /**
+     * pause for record video
+     */
+    private void pause(){
+        if(isRecordOn){
+            Log.d(TAG, "pause: camera");
+            pauseBtn.setImageResource(R.mipmap.play_white);
+            record_circle_progress.setVisibility(View.INVISIBLE);
+            pauseTimer();
+            stop();
+        }else{
+            Log.d(TAG, "pause: continueRecord camera");
+            pauseBtn.setImageResource(R.mipmap.pause);
+            record_circle_progress.setVisibility(View.VISIBLE);
+            continueRecord();
+            continueTimer();
+        }
+    }
+
+    /**
+     * combined the old video and the new video .
+     */
+    private void continueRecord(){
+        old.add(savedVideoPath) ;
+        Log.d(TAG, "continueRecord: begin to record again");
+        record();
+    }
+
+    private String combinedVideos(List<String> paths){
+        String root = getCamera2Path();
+        createSavePath(root);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String outFile = root + "合成_" + timeStamp + ".mp4";
+
+        Log.d(TAG, "combinedVideos: 待合成视频数量 ："+paths.size());
+
+        ArrayList<EpVideo> epVideos = new ArrayList<>();
+        for (String temp :paths) {
+            epVideos.add(new EpVideo(temp));
+        }
+        EpEditor.mergeByLc(this,epVideos, new EpEditor.OutputOption(outFile), new CombinedOnEditorListener());
+        return outFile;
     }
 
 
@@ -415,6 +548,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
             if(what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED){
                 Log.d("DurationListener", "Maximum Duration Reached");
                 stop();
+                gotoPreview();
             }
         }
     }
@@ -426,6 +560,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
     private void playMusic(int musicId) {
         music = MediaPlayer.create(this, musicId);
+//        music = getMediaPlayer(this);
         music.start();
         music.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override

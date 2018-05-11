@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -101,6 +102,7 @@ public class PreviewActivity extends BaseActivity {
         playBtn = findViewById(R.id.play_btn);
         thumbnails = findViewById(R.id.thumbnails);
         mediaMetadataRetriever= new MediaMetadataRetriever();
+        Log.d(TAG, "initViews: path:"+path);
         mediaMetadataRetriever.setDataSource(path);
         duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
     }
@@ -118,21 +120,23 @@ public class PreviewActivity extends BaseActivity {
                     bitmap = mediaMetadataRetriever.getFrameAtTime(i*1000,MediaMetadataRetriever.OPTION_CLOSEST);//No need to be a key frame
                     try {
 
-                        String thumbnailsPath = saveBitmap(bitmap,path);
-
-                        if (thumbnailsPath.equals("exist")){
-                            hasFinishedBefore = true;
-                            break;
+                        if (bitmap!=null){
+                            String thumbnailsPath = saveBitmap(bitmap,path);
+                            if (thumbnailsPath.equals("exist")){
+                                hasFinishedBefore = true;
+                                break;
+                            }else{
+                                thumbs.add(thumbnailsPath);
+                                PreviewActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d(TAG, "run: thumbs.size = "+thumbs.size());
+                                        thumbnails.getAdapter().notifyItemInserted(thumbs.size()-1);
+                                    }
+                                });
+                            }
                         }else{
-                            thumbs.add(thumbnailsPath);
-
-                            PreviewActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Log.d(TAG, "run: thumbs.size = "+thumbs.size());
-                                    thumbnails.getAdapter().notifyItemInserted(thumbs.size()-1);
-                                }
-                            });
+                            Log.e(TAG, "initThumbnails: the bitmap at getFrameAtTime return null!" );
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -208,7 +212,7 @@ public class PreviewActivity extends BaseActivity {
      * @throws IOException error
      * @return path
      */
-    private String saveBitmap(Bitmap bitmap,String videoPath) throws IOException{
+    private String saveBitmap(@NonNull Bitmap bitmap, String videoPath) throws IOException{
         String root = getCamera2Path()+"cache/";
         String temporary  =root+videoPath.substring(videoPath.lastIndexOf("/")+1,videoPath.lastIndexOf("."))+"/";
         String path;
@@ -226,7 +230,7 @@ public class PreviewActivity extends BaseActivity {
                     Log.e(TAG, "saveBitmap: cache directory created error!");
                 }
             }else{
-                File cache = new File(root+videoPath.substring(videoPath.lastIndexOf("/")+1,videoPath.lastIndexOf("."))+"/");
+                File cache = new File(temporary);
                 if (!cache.exists()){
                     if (cache.mkdir()){
                         Log.d(TAG, "saveBitmap: cache sub file directory created!");
@@ -249,6 +253,7 @@ public class PreviewActivity extends BaseActivity {
                 Log.d(TAG, "saveBitmap: create cache image successfully.");
             } catch (IOException e){
                 e.printStackTrace();
+                Log.e(TAG, "saveBitmap: created cache jpeg images failed." );
             }
             return path;
         }
