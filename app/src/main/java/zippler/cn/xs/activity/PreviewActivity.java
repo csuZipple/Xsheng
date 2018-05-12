@@ -70,11 +70,7 @@ public class PreviewActivity extends BaseActivity {
         //init recycler view
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);//set horizontal
-
         thumbnails.setLayoutManager(linearLayoutManager);
-
-
-        //but there is no data in thumbs
         RecyclerThumbnailsAdapter adapter = new RecyclerThumbnailsAdapter(thumbs);
         thumbnails.setAdapter(adapter);
 
@@ -88,7 +84,6 @@ public class PreviewActivity extends BaseActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
                 Log.d(TAG, "run after init Thumbnails: spend time: "+(System.currentTimeMillis()-time));
             }
         }).start();
@@ -119,9 +114,9 @@ public class PreviewActivity extends BaseActivity {
                     Log.d(TAG, "initThumbnails: current time is :"+i+" ms");
                     bitmap = mediaMetadataRetriever.getFrameAtTime(i*1000,MediaMetadataRetriever.OPTION_CLOSEST);//No need to be a key frame
                     try {
-
                         if (bitmap!=null){
                             String thumbnailsPath = saveBitmap(bitmap,path);
+                            bitmap.recycle();//release memory.
                             if (thumbnailsPath.equals("exist")){
                                 hasFinishedBefore = true;
                                 break;
@@ -303,5 +298,10 @@ public class PreviewActivity extends BaseActivity {
             playBtn.setVisibility(View.GONE);
             videoView.start();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

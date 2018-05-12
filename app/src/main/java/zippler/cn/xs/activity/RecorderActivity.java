@@ -1,6 +1,7 @@
 package zippler.cn.xs.activity;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -26,11 +27,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
 import zippler.cn.xs.R;
 import zippler.cn.xs.handler.RecordTimerRunnable;
 import zippler.cn.xs.listener.CombinedOnEditorListener;
+import zippler.cn.xs.util.FFmpegEditor;
 
 public class RecorderActivity extends BaseActivity implements TextureView.SurfaceTextureListener{
 
@@ -59,18 +60,21 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private boolean isLightOn;
     private boolean isBackCameraOn ;
     private boolean isRecordOn = false;
+    private boolean isFirstRecord = true;
 
     private float oldDist =1f;
     private static final int DURATION = 15000 ;//set max video duration
 
     //listener
     private VideoCaptureDurationListener durationListener ;
+    private CombinedOnEditorListener editorListener;
 
     //timer
     private Handler handler;
     private RecordTimerRunnable runnable;
     private int time = 15;//15s
-    private int progress;
+    private int progress = -1;
+    private boolean isCombined = false;//combined video progress
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,8 +144,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
                 startRecord();
                 break;
             case R.id.next_step:
-                //内存bug崩溃
-                stop();
+                if (isRecordOn){ //内存bug崩溃
+                    stop();
+                }
                 gotoPreview();
                 break;
             case R.id.pause_btn:
@@ -246,19 +251,25 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
     private void startRecord(){
+        isFirstRecord = false;
         if (!isRecordOn){
-            record_circle_progress.setVisibility(View.VISIBLE);
-            record_line_progress.setVisibility(View.VISIBLE);
-            reverse.setVisibility(View.GONE);//maybe invisible
-            recordBtn.setImageResource(R.mipmap.stop);
-            recordBtn.setImageResource(R.mipmap.record);
-            playMusic(R.raw.di);
-            startTimer();//begin
-            record();
+            if (progress!=-1&&progress>0&&progress<15){
+                Log.d(TAG, "pause: continueRecord camera");
+                pauseBtn.setImageResource(R.mipmap.pause);
+                record_circle_progress.setVisibility(View.VISIBLE);
+                continueRecord();
+                continueTimer();
+            }else{
+                record_circle_progress.setVisibility(View.VISIBLE);
+                record_line_progress.setVisibility(View.VISIBLE);
+                recordBtn.setImageResource(R.mipmap.stop);
+                recordBtn.setImageResource(R.mipmap.record);
+                startTimer();//begin
+                record();
+            }
         }else{
-            stop();//how to continue..?
+            stop();
             gotoPreview();
-
         }
     }
 
@@ -281,7 +292,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         time = runnable.getTime();//get current remained time;
         handler.removeCallbacks(runnable);
         runnable = null;
-        Log.d(TAG, "pauseTimer: pause running");
+        Log.d(TAG, "pauseTimer: pause timer");
     }
 
     /**
@@ -323,7 +334,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
     private void record() {
         prepare();
-        isRecordOn = true;
+        playMusic(R.raw.di);
+        isRecordOn = true;//fixed camera unlock failed
+        reverse.setVisibility(View.GONE);//maybe invisible
         //save video
         String root = getCamera2Path();
         createSavePath(root);
@@ -358,27 +371,34 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
     private void gotoPreview(){
-        String combinedPath;
+        final String combinedPath;
         Log.d(TAG, "stop: jump to preview");
         Intent intent = new Intent(this,PreviewActivity.class);
         old.add(savedVideoPath);
         if (old.size()>1){
             combinedPath = combinedVideos(old);
-            //remove the two videos
-          /*  File file;
-            for (String path:old){
-                file = new File(path);
-                if (file.exists()){
-                    if (file.delete()){
-                        Log.d(TAG, "gotoPreview: delete old videos :"+path.substring(path.lastIndexOf("/")));
+            Log.d(TAG, "gotoPreview: waiting for combined videos");
+            //load a loading dialog
+            final ProgressDialog dialog = ProgressDialog.show(this,"合成中...","请稍后...",true);
+            final Handler timerHandler = new Handler();
+            timerHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    isCombined = editorListener.isFinished();
+                    if (isCombined){
+                        dialog.dismiss();
+                        Intent intent = new Intent(RecorderActivity.this,PreviewActivity.class);
+                        intent.putExtra("videoPath",combinedPath);
+                        startActivity(intent);
                     }
+                    timerHandler.postDelayed(this,500);
                 }
-            }*/
-            intent.putExtra("videoPath",combinedPath);
+            },500);
+
         }else{
             intent.putExtra("videoPath",savedVideoPath);
+            startActivity(intent);
         }
-        startActivity(intent);
     }
 
     /**
@@ -409,19 +429,23 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         record();
     }
 
+    /**
+     * waiting for this videos
+     * @param paths the old videos
+     * @return the combined video path
+     */
     private String combinedVideos(List<String> paths){
         String root = getCamera2Path();
         createSavePath(root);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String outFile = root + "合成_" + timeStamp + ".mp4";
-
-        Log.d(TAG, "combinedVideos: 待合成视频数量 ："+paths.size());
-
         ArrayList<EpVideo> epVideos = new ArrayList<>();
+        epVideos.clear();
         for (String temp :paths) {
             epVideos.add(new EpVideo(temp));
         }
-        EpEditor.mergeByLc(this,epVideos, new EpEditor.OutputOption(outFile), new CombinedOnEditorListener());
+        editorListener = new CombinedOnEditorListener(old,isCombined);
+        FFmpegEditor.mergeByLc(root, epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
         return outFile;
     }
 
@@ -442,19 +466,19 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
     private void switchFlash(){
-         if (parameters!=null){
-             if (!isLightOn){
-                 exposure.setImageResource(R.mipmap.exposure);
-                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                 isLightOn = true;
-                 camera.setParameters(parameters);
-             }else{
-                 exposure.setImageResource(R.mipmap.flash_off);
-                 parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                 isLightOn = false;
-                 camera.setParameters(parameters);
-             }
-         }
+        if (parameters!=null){
+            if (!isLightOn){
+                exposure.setImageResource(R.mipmap.exposure);
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                isLightOn = true;
+                camera.setParameters(parameters);
+            }else{
+                exposure.setImageResource(R.mipmap.flash_off);
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                isLightOn = false;
+                camera.setParameters(parameters);
+            }
+        }
     }
 
     /**
