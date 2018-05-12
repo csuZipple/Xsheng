@@ -9,4 +9,5 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="red_tags">#f55</color>
     <color name="colorPink">#ea6f5a</color>
+    <color name="colorRed">#F44336</color>
 </resources>

@@ -1,6 +1,7 @@
 package zippler.cn.xs.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -17,9 +18,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +47,7 @@ public class PreviewActivity extends BaseActivity {
     private VideoView videoView;
     private ImageView playBtn;
     private RecyclerView thumbnails;
+    private ImageView deleteBtn;
 
     private List<String> thumbs = new ArrayList<>();
     private MediaMetadataRetriever mediaMetadataRetriever;
@@ -67,6 +76,15 @@ public class PreviewActivity extends BaseActivity {
             }
         });
 
+//        initRecycler();
+
+    }
+
+    private void initRecycler(){
+        mediaMetadataRetriever= new MediaMetadataRetriever();
+        Log.d(TAG, "initViews: path:"+path);
+        mediaMetadataRetriever.setDataSource(path);
+        duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         //init recycler view
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);//set horizontal
@@ -89,17 +107,13 @@ public class PreviewActivity extends BaseActivity {
         }).start();
     }
 
-
     private void initViews(){
         back = findViewById(R.id.back_preview);
         nextStep = findViewById(R.id.next_step_after_preview);
         videoView = findViewById(R.id.video);
         playBtn = findViewById(R.id.play_btn);
-        thumbnails = findViewById(R.id.thumbnails);
-        mediaMetadataRetriever= new MediaMetadataRetriever();
-        Log.d(TAG, "initViews: path:"+path);
-        mediaMetadataRetriever.setDataSource(path);
-        duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+//        thumbnails = findViewById(R.id.thumbnails); // 留待有缘人来实现视频截取功能吧...目前的代码存在内存溢出问题，暂时不做了
+        deleteBtn = findViewById(R.id.delete_btn);
     }
 
     private void initThumbnails() {
@@ -165,6 +179,9 @@ public class PreviewActivity extends BaseActivity {
         nextStep.setOnClickListener(this);
         back.setOnClickListener(this);
         playBtn.setOnClickListener(this);
+        deleteBtn.setOnClickListener(this);
+
+
         videoView.setOnTouchListener(new View.OnTouchListener(){
 
             @Override
@@ -193,10 +210,18 @@ public class PreviewActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.next_step_after_preview:
-                toast("after preview");
+                upload();
                 break;
             case R.id.back_preview:
                 finish();
+                break;
+            case R.id.delete_btn:
+                deleteCurrentVideo();
+                Intent intent = new Intent(this,RecorderActivity.class);
+                startActivity(intent);
+                finish();
+            default:
+                toast("default clicked");
                 break;
         }
     }
@@ -272,6 +297,90 @@ public class PreviewActivity extends BaseActivity {
 
     }
 
+    /**
+     * Upload to backstage and processing.
+     */
+    private void upload(){
+
+        //waiting for midi file lists
+
+        //deposit the midi -->music dir
+
+        //forwardPages
+        forwardPages();
+    }
+
+    /**
+     * upload video
+     * @throws IOException error
+     * @return return midi list.
+     */
+    private StringBuilder uploadByPost() throws IOException {
+        String end = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "******";
+        URL url = new URL("http://121.196.220.121/");
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setChunkedStreamingMode(128 * 1024);// 128K
+        // 允许输入输出流
+        httpURLConnection.setDoInput(true);
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setUseCaches(false);
+        // 使用POST方法
+        httpURLConnection.setRequestMethod("POST");
+        httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
+        httpURLConnection.setRequestProperty("Charset", "UTF-8");
+        httpURLConnection.setRequestProperty("Content-Type",
+                "multipart/form-data;boundary=" + boundary);
+
+        DataOutputStream dos = new DataOutputStream(
+                httpURLConnection.getOutputStream());
+        dos.writeBytes(twoHyphens + boundary + end);
+        dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\""
+                + path.substring(path.lastIndexOf("/") + 1) + "\"" + end);
+        dos.writeBytes(end);
+
+        FileInputStream fis = new FileInputStream(path);
+        byte[] buffer = new byte[8192]; // 8k
+        int count = 0;
+        // 读取文件
+        while ((count = fis.read(buffer)) != -1) {
+            dos.write(buffer, 0, count);
+        }
+        fis.close();
+        dos.writeBytes(end);
+        dos.writeBytes(twoHyphens + boundary + twoHyphens + end);
+        dos.flush();
+        InputStream is = httpURLConnection.getInputStream();
+        InputStreamReader isr = new InputStreamReader(is, "utf-8");
+        BufferedReader br = new BufferedReader(isr);
+        StringBuilder result = new StringBuilder();
+        String temp;
+        while((temp = br.readLine())!=null){
+            result.append(temp);
+        }
+        Log.d(TAG, "uploadFile: "+result);
+        dos.close();
+        is.close();
+        return result;
+    }
+
+    private void forwardPages(){
+        Intent intent = new Intent(this,PreviewMusicActivity.class);
+        startActivity(intent);
+    }
+
+    private void deleteCurrentVideo(){
+        File file = new File(path);
+        if (file.exists()){
+            if (file.delete()){
+                Log.d(TAG, "deleteCurrentVideo: delete current videos successfully");
+            }else{
+                Log.e(TAG, "deleteCurrentVideo: error in delete current video" );
+            }
+        }
+    }
+
     public static String getCamera2Path() {
         String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
         File file = new File(picturePath);
@@ -303,5 +412,11 @@ public class PreviewActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

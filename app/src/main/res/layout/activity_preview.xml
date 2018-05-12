@@ -19,15 +19,14 @@
           android:layout_height="0dp"
           android:layout_weight="1"/>
 
-      <!--可能需要对预览视频进行编辑-->
-      <android.support.v7.widget.RecyclerView
+<!--      <android.support.v7.widget.RecyclerView
           android:id="@+id/thumbnails"
           android:layout_width="match_parent"
           android:layout_height="60dp"
-          android:background="#000000"
+          android:background="#80000000"
           >
 
-      </android.support.v7.widget.RecyclerView>
+      </android.support.v7.widget.RecyclerView>-->
    </LinearLayout>
 
    <RelativeLayout
@@ -67,6 +66,17 @@
        android:src="@mipmap/play"
        android:contentDescription="@string/app_english"/>
 
+
+
+   <ImageView
+       android:id="@+id/delete_btn"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_alignParentStart="true"
+       android:layout_margin="20dp"
+       android:src="@mipmap/delete"
+       android:contentDescription="@string/app_english"/>
 
 
 </RelativeLayout>

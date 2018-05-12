@@ -60,7 +60,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private boolean isLightOn;
     private boolean isBackCameraOn ;
     private boolean isRecordOn = false;
-    private boolean isFirstRecord = true;
+    private boolean isFirstRecord = false;
 
     private float oldDist =1f;
     private static final int DURATION = 15000 ;//set max video duration
@@ -251,7 +251,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
     private void startRecord(){
-        isFirstRecord = false;
+        isFirstRecord = true;
         if (!isRecordOn){
             if (progress!=-1&&progress>0&&progress<15){
                 Log.d(TAG, "pause: continueRecord camera");
@@ -405,18 +405,20 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
      * pause for record video
      */
     private void pause(){
-        if(isRecordOn){
-            Log.d(TAG, "pause: camera");
-            pauseBtn.setImageResource(R.mipmap.play_white);
-            record_circle_progress.setVisibility(View.INVISIBLE);
-            pauseTimer();
-            stop();
-        }else{
-            Log.d(TAG, "pause: continueRecord camera");
-            pauseBtn.setImageResource(R.mipmap.pause);
-            record_circle_progress.setVisibility(View.VISIBLE);
-            continueRecord();
-            continueTimer();
+        if (isFirstRecord){
+            if(isRecordOn){
+                Log.d(TAG, "pause: camera");
+                pauseBtn.setImageResource(R.mipmap.play_white);
+                record_circle_progress.setVisibility(View.INVISIBLE);
+                pauseTimer();
+                stop();
+            }else{
+                Log.d(TAG, "pause: continueRecord camera");
+                pauseBtn.setImageResource(R.mipmap.pause);
+                record_circle_progress.setVisibility(View.VISIBLE);
+                continueRecord();
+                continueTimer();
+            }
         }
     }
 
