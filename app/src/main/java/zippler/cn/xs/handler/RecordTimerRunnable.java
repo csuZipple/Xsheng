@@ -1,9 +1,7 @@
 package zippler.cn.xs.handler;
 
-import android.util.Log;
-import android.widget.ProgressBar;
-
 import android.os.Handler;
+import android.widget.ProgressBar;
 
 /**
  * Created by Zipple on 2018/5/11.
@@ -27,11 +25,11 @@ public class RecordTimerRunnable implements Runnable {
         time--;
         if (time>0){
             progress++;
-            Log.d(TAG, "run: record timer running "+progress);
             progressBar.setProgress(progress);
             handler.postDelayed(this,1000);
         }else{
             //stop
+            handler.removeCallbacks(this);
         }
     }
 

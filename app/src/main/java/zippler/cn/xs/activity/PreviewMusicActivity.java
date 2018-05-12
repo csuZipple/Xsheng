@@ -1,20 +1,25 @@
 package zippler.cn.xs.activity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerMusicAdapter;
-import zippler.cn.xs.entity.Music;
+import zippler.cn.xs.listener.OnPageChangedListener;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.PagingScrollHelper;
 
@@ -25,14 +30,14 @@ public class PreviewMusicActivity extends BaseActivity {
 
     private ImageView back;
     private TextView nextStep;
-    private VideoView videoView;
+    private VideoView video;
     private ImageView playBtn;
     private RelativeLayout guideLayout;
     private RecyclerView musics;
 
 
-    private List<Music> data;
-
+    private ArrayList<String> data;
+    private int currentPosition = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,33 +52,41 @@ public class PreviewMusicActivity extends BaseActivity {
     private void initViews(){
         back = findViewById(R.id.back_preview_m);
         nextStep = findViewById(R.id.next_step_after_preview_m);
-        videoView = findViewById(R.id.video_m);
+        video = findViewById(R.id.video_m);
         playBtn = findViewById(R.id.play_btn_m);
         guideLayout = findViewById(R.id.guide_layout);
         musics = findViewById(R.id.musics);
 
-        //判断是否是第一次进入此页面
-        // SharedPreferences
+        if (isFirstIn()){
+            guideLayout.setVisibility(View.GONE);
+        }
+
+        video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                video.start();
+            }
+        });
+        video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                video.start();
+            }
+        });
     }
 
     private void registerListeners(){
         back.setOnClickListener(this);
         nextStep.setOnClickListener(this);
-        videoView.setOnClickListener(this);
+        video.setOnClickListener(this);
         playBtn.setOnClickListener(this);
         guideLayout.setOnClickListener(this);
     }
 
     private void initDatas(){
-        data = new ArrayList<>();
-        //from intent..
-        Music temp ;
-        for (int i = 0; i < 10; i++) {
-            temp = new Music();
-            temp.setName("music_add_"+i);
-            temp.setLength("00:0"+i);
-            data.add(temp);
-        }
+        //get intent
+        data = getIntent().getStringArrayListExtra("videoPaths");
+        Log.d(TAG, "initDatas: data size = "+data.size());
     }
 
     private void initRecyclerView(){
@@ -83,28 +96,97 @@ public class PreviewMusicActivity extends BaseActivity {
 
         PagingScrollHelper helper = new PagingScrollHelper();//set scrolled horizontal
         helper.setUpRecycleView(musics);
+        //set page changed listener
+        helper.setOnPageChangedListener(new OnPageChangedListener() {
+            @Override
+            public void onChanged(int position) {
+                Log.d(TAG, "onChanged: page changed!!!!  "+position);
+                 //change video here
+                if (position<data.size()&&position>0){
+                    video.setVideoPath(data.get(position));
+                }
+            }
+        });
 
         RecyclerMusicAdapter adapter = new RecyclerMusicAdapter(data);
         musics.setAdapter(adapter);
 
+        if (guideLayout.getVisibility()==View.GONE){
+           //play the first one
+            if (data.size()>0){
+                video.setVideoPath(data.get(0));
+            }
+        }
+    }
+
+    private void putSharedData(){
+        SharedPreferences sp = getSharedPreferences("firstIn", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("isFirstIn", "false");
+        editor.commit();
+    }
+
+    private String getSharedData(){
+        SharedPreferences sp = getSharedPreferences("firstIn", Context.MODE_PRIVATE);
+        return sp.getString("isFirstIn","true");
+    }
+
+    private boolean isFirstIn(){
+        if (getSharedData().equals("false")){
+            return false;
+        }else{
+            putSharedData();
+            return false;
+        }
     }
 
 
     @Override
     public void onClick(View v) {
-         switch (v.getId()){
-             case R.id.guide_layout:
-                 guideLayout.setVisibility(View.GONE);
-                 break;
-             default:
-                 break;
-         }
+        switch (v.getId()){
+            case R.id.guide_layout:
+                guideLayout.setVisibility(View.GONE);
+                //play the video
+                if (data.size()>0){
+                    video.setVideoPath(data.get(0));
+                }
+
+                break;
+            default:
+                break;
+        }
     }
 
-    private void addBgm(){
 
+    @Override
+    public void finish() {
+        super.finish();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //pause the video
+        if (video!=null){
+            video.pause();
+        }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //restart
+        if (video!=null){
+            video.start();
+        }
+    }
 
+    public static String getCamera2Path() {
+        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
+        File file = new File(picturePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return picturePath;
+    }
 }

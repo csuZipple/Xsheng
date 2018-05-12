@@ -55,9 +55,4 @@ public class LinerLayoutManager extends LinearLayoutManager {
     public void setSpeedFast() {
         MILLISECONDS_PER_INCH = context.getResources().getDisplayMetrics().density * 0.03f;
     }
-
-    @Override
-    public boolean canScrollHorizontally() {
-        return true;
-    }
 }

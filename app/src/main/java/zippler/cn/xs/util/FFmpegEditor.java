@@ -308,6 +308,8 @@ public class FFmpegEditor  {
             cmd.append("-ss").append("0").append("-t").append(duration).append("-i").append(audioin).append("-acodec").append("copy").append("-vcodec").append("copy");
         } else {
             cmd.append("-i").append(audioin).append("-filter_complex").append("[0:a]aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo,volume=" + videoVolume + "[a0];[1:a]aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo,volume=" + audioVolume + "[a1];[a0][a1]amix=inputs=2:duration=first[aout]").append("-map").append("[aout]").append("-ac").append("2").append("-c:v").append("copy").append("-map").append("0:v:0");
+//            ffmpeg -y -i input.mp4 -i ainiyiwannian.wav -filter_complex "[0:a] pan=stereo|c0=1*c0|c1=1*c1 [a1], [1:a] pan=stereo|c0=1*c0|c1=1*c1 [a2],[a1][a2]amix=duration=first,pan=stereo|c0<c0+c1|c1<c2+c3,pan=mono|c0=c0+c1[a]" -map "[a]" -map 0:v -c:v libx264 -c:a aac -strict -2 -ac 2 output.mp4
+//            cmd.append("-i").append(audioin).append("-filter_complex").append("[0:a]aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo,volume=" + videoVolume + "[a0];[1:a]aformat=sample_fmts=fltp:sample_rates=44100:channel_layouts=stereo,volume=" + audioVolume).append("-ac").append("2").append("-c:v").append("copy").append("-map").append("0:v:0");
         }
 
         cmd.append(output);
@@ -422,7 +424,6 @@ public class FFmpegEditor  {
 
         Log.v("EpMediaF", "cmd:" + cmdLog);
         FFmpegCmd.exec(cmds, duration, onEditorListener);
-        Log.d("RecorderActivity", "执行合并视频命令完成");
     }
 
     public static class OutputOption {

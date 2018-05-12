@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -35,12 +34,17 @@ import java.util.List;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerThumbnailsAdapter;
+import zippler.cn.xs.entity.Music;
+import zippler.cn.xs.listener.CombinedMusicEditorListener;
+import zippler.cn.xs.util.FFmpegEditor;
 import zippler.cn.xs.util.ImageFileUtil;
 
 public class PreviewActivity extends BaseActivity {
 
     private String path;
     private long duration;
+    private ArrayList<String> videoPaths = new ArrayList<>();
+    private String output;
 
     private ImageView back;
     private TextView nextStep;
@@ -51,17 +55,21 @@ public class PreviewActivity extends BaseActivity {
 
     private List<String> thumbs = new ArrayList<>();
     private MediaMetadataRetriever mediaMetadataRetriever;
+
+    private CombinedMusicEditorListener listener;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
 
         path = getIntent().getStringExtra("videoPath");
+        Log.d(TAG, "onCreate: path :"+path);
         initViews();
         registerListener();
 
-        Uri uri = Uri.parse(path);
-        videoView.setVideoURI(uri);
+        videoView.setVideoPath(path);
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -302,24 +310,33 @@ public class PreviewActivity extends BaseActivity {
      */
     private void upload(){
 
-        //waiting for midi file lists
+        try {
+//              uploadByPost("");
+            //waiting for midi file lists
+            List<Music> musics = depositMp3();
+            Log.d(TAG, "upload: music size = "+musics.size());
+            //deposit the midi -->music dir
+            addBgm(musics);
+            //add bgm
 
-        //deposit the midi -->music dir
+            //forwardPages
+            forwardPages();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        //forwardPages
-        forwardPages();
     }
 
     /**
      * upload video
      * @throws IOException error
-     * @return return midi list.
+     * @return return the output
      */
-    private StringBuilder uploadByPost() throws IOException {
+    private StringBuilder uploadByPost(String net) throws IOException {
         String end = "\r\n";
         String twoHyphens = "--";
         String boundary = "******";
-        URL url = new URL("http://121.196.220.121/");
+        URL url = new URL(net);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setChunkedStreamingMode(128 * 1024);// 128K
         // 允许输入输出流
@@ -351,6 +368,8 @@ public class PreviewActivity extends BaseActivity {
         dos.writeBytes(end);
         dos.writeBytes(twoHyphens + boundary + twoHyphens + end);
         dos.flush();
+
+        //how to get json data..
         InputStream is = httpURLConnection.getInputStream();
         InputStreamReader isr = new InputStreamReader(is, "utf-8");
         BufferedReader br = new BufferedReader(isr);
@@ -365,8 +384,69 @@ public class PreviewActivity extends BaseActivity {
         return result;
     }
 
+    private List<Music> depositMp3(){
+        String cache = "mp3"+File.separator;
+        createDir(getCamera2Path()+cache);
+
+        List<Music> musics = new ArrayList<>();
+
+        //deposit here...
+        Music temp = new Music();
+        temp.setLocalStorageUrl(getCamera2Path()+"test.mp3");
+        temp.setName("Tank");
+        musics.add(temp);
+
+        temp = new Music();
+        temp.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+        temp.setName("Hora");
+        musics.add(temp);
+
+        return musics;
+    }
+
+
+/*    private void addBgm(List<Music> musics){
+        Vector<Thread> threads = new Vector<Thread>();
+        for (final Music temp:musics) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    attachBgm(temp);
+                }
+            });
+            threads.add(thread);
+            thread.start();
+        }
+        for (Thread iThread : threads) {
+            try {
+                iThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d(TAG, "addBgm: 合成完成!");
+}  */
+
+    private void addBgm(List<Music> musics){
+//        attachBgm(musics.get(0));
+        attachBgm(musics.get(0));
+        Log.d(TAG, "addBgm: 合成完成!");
+    }
+
+    private void attachBgm(Music temp){
+        String cache = "video"+File.separator;
+        createDir(getCamera2Path()+cache);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        output= getCamera2Path()+cache+"py_"+timeStamp+".mp4";
+        listener = new CombinedMusicEditorListener();
+        FFmpegEditor.music(path, temp.getLocalStorageUrl(), output, 0.3f, 1.0f, listener);//如何释放资源？？
+        videoPaths.add(output);
+    }
+
     private void forwardPages(){
         Intent intent = new Intent(this,PreviewMusicActivity.class);
+        //传递配好背景音的视频路径
+        intent.putStringArrayListExtra("videoPaths",  videoPaths);
         startActivity(intent);
     }
 
@@ -382,7 +462,7 @@ public class PreviewActivity extends BaseActivity {
     }
 
     public static String getCamera2Path() {
-        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
+        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator+"xsheng"+File.separator;
         File file = new File(picturePath);
         if (!file.exists()) {
             file.mkdirs();
@@ -390,7 +470,7 @@ public class PreviewActivity extends BaseActivity {
         return picturePath;
     }
 
-    public static void createSavePath(String path){
+    public static void createDir(String path){
         File file = new File(path);
         if (!file.exists()) {
             file.mkdirs();

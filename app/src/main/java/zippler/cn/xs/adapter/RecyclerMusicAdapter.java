@@ -7,10 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import zippler.cn.xs.R;
-import zippler.cn.xs.entity.Music;
 
 /**
  * Created by Zipple on 2018/5/12.
@@ -18,9 +17,9 @@ import zippler.cn.xs.entity.Music;
  */
 public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdapter.MusicHolder> {
 
-    private List<Music> data;
+    private ArrayList<String> data;
 
-    public RecyclerMusicAdapter(List<Music> data) {
+    public RecyclerMusicAdapter(ArrayList<String> data) {
         this.data = data;
     }
 
@@ -35,7 +34,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
 
     @Override
     public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
-        holder.getTextView().setText(data.get(position).getName());
+        holder.getTextView().setText(++position);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
         private TextView textView;
         MusicHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.music_item);
+            textView = itemView.findViewById(R.id.music_text);
         }
 
         public TextView getTextView() {

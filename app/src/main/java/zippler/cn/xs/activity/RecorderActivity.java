@@ -106,7 +106,6 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         exposure.setOnClickListener(this);
         reverse.setOnClickListener(this);
         recordBtn.setOnClickListener(this);
-        nextStep.setOnClickListener(this);
         pauseBtn.setOnClickListener(this);
 
         addTouchListeners();
@@ -141,6 +140,8 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
                 switchCamera();
                 break;
             case R.id.record_btn:
+                nextStep.setOnClickListener(this);
+                nextStep.setBackgroundResource(R.drawable.pink_background);
                 startRecord();
                 break;
             case R.id.next_step:
@@ -390,8 +391,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
                         Intent intent = new Intent(RecorderActivity.this,PreviewActivity.class);
                         intent.putExtra("videoPath",combinedPath);
                         startActivity(intent);
+                    }else{
+                        timerHandler.postDelayed(this,500);
                     }
-                    timerHandler.postDelayed(this,500);
                 }
             },500);
 
@@ -586,7 +588,6 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
 
     private void playMusic(int musicId) {
         music = MediaPlayer.create(this, musicId);
-//        music = getMediaPlayer(this);
         music.start();
         music.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override

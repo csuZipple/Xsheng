@@ -5,9 +5,11 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,18 +87,18 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-         switch (v.getId()){
-             case R.id.upload:
-                 openLocalVideos();
-                 break;
-             case R.id.record:
-                 Intent intent = new Intent(this.getActivity(), RecorderActivity.class);
-                 startActivity(intent);
-                 break;
-             default:
-                 Toast.makeText(this.getContext(),"default clicked",Toast.LENGTH_SHORT).show();
-                 break;
-         }
+        switch (v.getId()){
+            case R.id.upload:
+                openLocalVideos();
+                break;
+            case R.id.record:
+                Intent intent = new Intent(this.getActivity(), RecorderActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                Toast.makeText(this.getContext(),"default clicked",Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
     /**
@@ -124,13 +127,26 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
      */
     private void initMusic(){
         musicList = new ArrayList<>();
-        //add music data here . it also can be load by internet
-        Music temp ;
-        for (int i = 0; i < 10; i++) {
-            temp = new Music();
-            temp.setName("music_add_"+i);
-            temp.setLength("00:0"+i);
+        //add music data here . it also can be load from internet
+        for (int i = 0; i < 5; i++) {
+            Music temp = new Music();
+            temp.setName("music_test_"+i);
+            temp.setLocalStorageUrl(getCamera2Path()+"test.mp3");
+            MediaPlayer player = MediaPlayer.create(this.getContext(),Uri.parse(temp.getLocalStorageUrl()));
+
+            temp.setDuration(player.getDuration());
+            temp.setLength(player.getDuration());
+
             musicList.add(temp);
+
+            Music s = new Music();
+            s.setName("music_j_"+(i+5));
+            s.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+            player = MediaPlayer.create(this.getContext(),Uri.parse(s.getLocalStorageUrl()));
+            s.setDuration(player.getDuration());
+            s.setLength(player.getDuration());
+
+            musicList.add(s);
         }
     }
 
@@ -156,7 +172,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
                     if (cursor.moveToFirst()) {
                         int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
                         String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
-                         videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                        videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
                         int duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
                         long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
 
@@ -176,6 +192,16 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    public static String getCamera2Path() {
+        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator+"xsheng"+File.separator;
+        File file = new File(picturePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return picturePath;
+    }
+
 
     public RecyclerView getRecyclerView() {
         return recyclerView;

@@ -7,16 +7,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 
+import zippler.cn.xs.listener.OnPageChangedListener;
+
 
 /**
  * Created by Zipple on 2018/5/12.
  */
 public class PagingScrollHelper {
     RecyclerView mRecyclerView = null;
+    private int currentPage = -1;
+    private int oldPage;
 
     private MyOnScrollListener mOnScrollListener = new MyOnScrollListener();
 
     private MyOnFlingListener mOnFlingListener = new MyOnFlingListener();
+
+    private OnPageChangedListener pageChangedListener;
+
+
     private int offsetY = 0;
     private int offsetX = 0;
 
@@ -24,11 +32,41 @@ public class PagingScrollHelper {
     int startX = 0;
 
 
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public OnPageChangedListener getPageChangedListener() {
+        return pageChangedListener;
+    }
+
+    public void setOnPageChangedListener(OnPageChangedListener pageChangedListener) {
+        this.pageChangedListener = pageChangedListener;
+    }
+
+    public int getOldPage() {
+        return oldPage;
+    }
+
+    public void setOldPage(int oldPage) {
+        this.oldPage = oldPage;
+    }
+
+
     enum ORIENTATION {
         HORIZONTAL, VERTICAL, NULL
     }
 
     ORIENTATION mOrientation = ORIENTATION.HORIZONTAL;
+
+    public PagingScrollHelper(){
+
+    }
+
 
     public void setUpRecycleView(RecyclerView recycleView) {
         if (recycleView == null) {
@@ -106,6 +144,8 @@ public class PagingScrollHelper {
                 endPoint = p * mRecyclerView.getWidth();
 
             }
+            oldPage = currentPage;
+            currentPage = p;
             if (endPoint < 0) {
                 endPoint = 0;
             }
@@ -145,6 +185,13 @@ public class PagingScrollHelper {
             }
 
             mAnimator.start();
+
+            //滚动完成
+            if (pageChangedListener!=null){
+                if (currentPage!=oldPage){
+                    pageChangedListener.onChanged(currentPage);
+                }
+            }
 
             return true;
         }
