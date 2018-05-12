@@ -316,6 +316,8 @@ public class PreviewActivity extends BaseActivity {
             List<Music> musics = depositMp3();
             Log.d(TAG, "upload: music size = "+musics.size());
             //deposit the midi -->music dir
+
+            //add dialog here.
             addBgm(musics);
             //add bgm
 
@@ -429,7 +431,15 @@ public class PreviewActivity extends BaseActivity {
 
     private void addBgm(List<Music> musics){
 //        attachBgm(musics.get(0));
-        attachBgm(musics.get(0));
+//        attachBgm(musics.get(0));
+        for (Music temp:musics) {
+            attachBgm(temp);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         Log.d(TAG, "addBgm: 合成完成!");
     }
 

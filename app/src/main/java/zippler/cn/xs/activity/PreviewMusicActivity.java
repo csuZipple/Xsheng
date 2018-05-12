@@ -102,7 +102,7 @@ public class PreviewMusicActivity extends BaseActivity {
             public void onChanged(int position) {
                 Log.d(TAG, "onChanged: page changed!!!!  "+position);
                  //change video here
-                if (position<data.size()&&position>0){
+                if (position<data.size()&&position>=0){
                     video.setVideoPath(data.get(position));
                 }
             }

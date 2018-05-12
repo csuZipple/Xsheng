@@ -34,7 +34,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
 
     @Override
     public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
-        holder.getTextView().setText(++position);
+        holder.getTextView().setText((++position)+"");
     }
 
     @Override
