@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -22,13 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".activity.MainActivity"/>
         <activity android:name=".activity.BaseActivity" />
         <activity android:name=".activity.GuideActivity" />
         <activity android:name=".activity.PreviewActivity" />
         <activity android:name=".activity.RecorderActivity" />
         <activity android:name=".activity.DeployActivity" />
-        <activity android:name=".activity.PreviewMusicActivity"></activity>
+        <activity android:name=".activity.PreviewMusicActivity" />
+        <activity android:name=".activity.PreviewFullVideoActivity"/>
     </application>
 
 </manifest>

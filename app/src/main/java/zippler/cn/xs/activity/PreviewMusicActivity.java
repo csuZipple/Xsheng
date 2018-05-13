@@ -1,6 +1,7 @@
 package zippler.cn.xs.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -104,6 +105,7 @@ public class PreviewMusicActivity extends BaseActivity {
                  //change video here
                 if (position<data.size()&&position>=0){
                     video.setVideoPath(data.get(position));
+                    currentPosition = position;
                 }
             }
         });
@@ -150,12 +152,22 @@ public class PreviewMusicActivity extends BaseActivity {
                 if (data.size()>0){
                     video.setVideoPath(data.get(0));
                 }
-
+                break;
+            case R.id.next_step_after_preview_m:
+                gotoDeploy();
                 break;
             default:
                 break;
         }
     }
+
+    private void gotoDeploy(){
+        Intent intent = new Intent(this,DeployActivity.class);
+        intent.putExtra("videoPath",data.get(currentPosition));
+        startActivity(intent);
+    }
+
+
 
 
     @Override

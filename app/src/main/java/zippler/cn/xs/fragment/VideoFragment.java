@@ -29,8 +29,11 @@ public class VideoFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
 
+
+
     //the data resource
-    private List<Video> videos;
+    private ArrayList<Video> videos;
+    private Video deployedVideo;//recent videos from deploy activity
 
     public VideoFragment() {
         // Required empty public constructor
@@ -77,10 +80,13 @@ public class VideoFragment extends Fragment {
         Video temp ;
         for (int i = 0; i < 10; i++) {
             temp = new Video();
-//            temp.setName("video"+i);
-            temp.setLength("00:0"+i);
+            temp.setDesc("我还是很喜欢你，像风走了八百里.");
+            temp.setLength(i*1000);
             temp.setDeployed(new Timestamp(System.currentTimeMillis()));//set current time to test
             videos.add(temp);
+        }
+        if (deployedVideo!=null){
+            videos.add(0,deployedVideo);
         }
     }
 
@@ -104,7 +110,15 @@ public class VideoFragment extends Fragment {
         return videos;
     }
 
-    public void setVideos(List<Video> videos) {
+    public void setVideos(ArrayList<Video> videos) {
         this.videos = videos;
+    }
+
+    public Video getDeployedVideo() {
+        return deployedVideo;
+    }
+
+    public void setDeployedVideo(Video deployedVideo) {
+        this.deployedVideo = deployedVideo;
     }
 }

@@ -35,6 +35,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
     @Override
     public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
         holder.getTextView().setText((++position)+"");
+        holder.getTextView().setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
         return data.size();
     }
 
-    class MusicHolder extends RecyclerView.ViewHolder{
+    public class MusicHolder extends RecyclerView.ViewHolder{
         private TextView textView;
         MusicHolder(View itemView) {
             super(itemView);

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#212121"
-    tools:context="zippler.cn.xs.activity.DeployActivity">
+    tools:context="zippler.cn.xs.activity.DeployActivity"
+    android:theme="@style/ShareElementAppTheme">
 
     <!--<zippler.cn.yuewu.component.MyGifView-->
         <!--android:id="@+id/loading"-->
@@ -77,7 +78,6 @@
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             android:transitionName="videoImg"
-
             android:contentDescription="@string/app_name" />
     </LinearLayout>
 
@@ -163,7 +163,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/deploy_button"
+        android:id="@+id/deploy_btn"
         android:layout_width="230dp"
         android:layout_height="50dp"
         android:text="发布"

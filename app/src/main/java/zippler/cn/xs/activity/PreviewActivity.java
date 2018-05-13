@@ -13,6 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import VideoHandle.OnEditorListener;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerThumbnailsAdapter;
 import zippler.cn.xs.entity.Music;
@@ -52,6 +56,7 @@ public class PreviewActivity extends BaseActivity {
     private ImageView playBtn;
     private RecyclerView thumbnails;
     private ImageView deleteBtn;
+    private ImageView loading;
 
     private List<String> thumbs = new ArrayList<>();
     private MediaMetadataRetriever mediaMetadataRetriever;
@@ -122,6 +127,7 @@ public class PreviewActivity extends BaseActivity {
         playBtn = findViewById(R.id.play_btn);
 //        thumbnails = findViewById(R.id.thumbnails); // 留待有缘人来实现视频截取功能吧...目前的代码存在内存溢出问题，暂时不做了
         deleteBtn = findViewById(R.id.delete_btn);
+        loading = findViewById(R.id.loading);
     }
 
     private void initThumbnails() {
@@ -311,18 +317,22 @@ public class PreviewActivity extends BaseActivity {
     private void upload(){
 
         try {
-//              uploadByPost("");
-            //waiting for midi file lists
+//          uploadByPost("");
+
             List<Music> musics = depositMp3();
             Log.d(TAG, "upload: music size = "+musics.size());
-            //deposit the midi -->music dir
 
-            //add dialog here.
-            addBgm(musics);
-            //add bgm
+            //how to load a loading animation
 
-            //forwardPages
-            forwardPages();
+            loading.setVisibility(View.VISIBLE);
+            videoView.pause();
+
+            Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
+            LinearInterpolator lin = new LinearInterpolator();
+            operatingAnim.setInterpolator(lin);
+            loading.startAnimation(operatingAnim);
+            attachBgm(musics);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -407,49 +417,33 @@ public class PreviewActivity extends BaseActivity {
     }
 
 
-/*    private void addBgm(List<Music> musics){
-        Vector<Thread> threads = new Vector<Thread>();
-        for (final Music temp:musics) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    attachBgm(temp);
-                }
-            });
-            threads.add(thread);
-            thread.start();
+    private  void attachBgm(final List<Music> musics){
+        if(musics==null || musics.size()==0) {
+            forwardPages();
+            return;
         }
-        for (Thread iThread : threads) {
-            try {
-                iThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        Log.d(TAG, "addBgm: 合成完成!");
-}  */
-
-    private void addBgm(List<Music> musics){
-//        attachBgm(musics.get(0));
-//        attachBgm(musics.get(0));
-        for (Music temp:musics) {
-            attachBgm(temp);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        Log.d(TAG, "addBgm: 合成完成!");
-    }
-
-    private void attachBgm(Music temp){
+        Music temp = musics.remove(0);
         String cache = "video"+File.separator;
         createDir(getCamera2Path()+cache);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         output= getCamera2Path()+cache+"py_"+timeStamp+".mp4";
-        listener = new CombinedMusicEditorListener();
-        FFmpegEditor.music(path, temp.getLocalStorageUrl(), output, 0.3f, 1.0f, listener);//如何释放资源？？
+//        listener = new CombinedMusicEditorListener(this);
+        FFmpegEditor.music(path, temp.getLocalStorageUrl(), output, 0.3f, 1.0f, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+                attachBgm(musics);
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+
+            @Override
+            public void onProgress(float v) {
+
+            }
+        });//如何释放资源？？
         videoPaths.add(output);
     }
 
@@ -485,6 +479,12 @@ public class PreviewActivity extends BaseActivity {
         if (!file.exists()) {
             file.mkdirs();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        loading.setVisibility(View.INVISIBLE);
     }
 
     @Override

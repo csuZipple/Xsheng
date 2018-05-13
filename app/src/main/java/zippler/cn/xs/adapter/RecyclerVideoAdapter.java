@@ -53,7 +53,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         //change child attribute here.
          Video video = videoList.get(position);
          if (video!=null){
-//             holder.getName().setText(video.getName());
+             holder.getName().setText(video.getDesc());
              holder.getTime().setText(video.getDeployed().toString());
              holder.getLength().setText(video.getLength());
          }else{

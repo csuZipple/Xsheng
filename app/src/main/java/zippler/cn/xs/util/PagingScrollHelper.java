@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -14,6 +15,7 @@ import zippler.cn.xs.listener.OnPageChangedListener;
  * Created by Zipple on 2018/5/12.
  */
 public class PagingScrollHelper {
+    private static final String TAG = "PagingScrollHelper";
     RecyclerView mRecyclerView = null;
     private int currentPage = -1;
     private int oldPage;
@@ -190,8 +192,13 @@ public class PagingScrollHelper {
             if (pageChangedListener!=null){
                 if (currentPage!=oldPage){
                     pageChangedListener.onChanged(currentPage);
-                }
+                   }
+
+
+
             }
+
+
 
             return true;
         }
@@ -201,7 +208,11 @@ public class PagingScrollHelper {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             //newState==0表示滚动停止，此时需要处理回滚
+            Log.d(TAG, "onScrollStateChanged: newState"+newState);
             if (newState == 0 && mOrientation != ORIENTATION.NULL) {
+
+
+
                 boolean move;
                 int vX = 0, vY = 0;
                 if (mOrientation == ORIENTATION.VERTICAL) {

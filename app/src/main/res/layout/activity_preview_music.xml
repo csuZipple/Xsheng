@@ -14,33 +14,6 @@
         android:layout_height="match_parent" />
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp">
-        <ImageView
-            android:id="@+id/back_preview_m"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:src="@mipmap/back"
-            android:layout_marginStart="10dp"
-            android:contentDescription="@string/app_english" />
-
-
-
-        <TextView
-            android:id="@+id/next_step_after_preview_m"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:padding="5dp"
-            android:textColor="@color/colorWhite"
-            android:background="@drawable/pink_background"
-            android:layout_marginEnd="10dp"
-            android:text="@string/next_step"
-            tools:ignore="RelativeOverlap" />
-    </RelativeLayout>
 
     <ImageView
         android:id="@+id/play_btn_m"
@@ -97,6 +70,34 @@
             android:rotation="180"
             android:src="@mipmap/arrow" />
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <ImageView
+            android:id="@+id/back_preview_m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/back"
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/app_english" />
+
+
+
+        <TextView
+            android:id="@+id/next_step_after_preview_m"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:padding="5dp"
+            android:textColor="@color/colorWhite"
+            android:background="@drawable/pink_background"
+            android:layout_marginEnd="10dp"
+            android:text="@string/next_step"
+            tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
 

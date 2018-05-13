@@ -11,6 +11,7 @@ import java.util.List;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.MainViewPagerAdapter;
 import zippler.cn.xs.component.NoPreloadViewPager;
+import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.fragment.CameraFragment;
 import zippler.cn.xs.fragment.UserFragment;
 import zippler.cn.xs.fragment.VideoFragment;
@@ -37,7 +38,10 @@ public class MainActivity extends BaseActivity {
     private void initFragment(){
         fragments = new ArrayList<>();
         //add fragments here
-        fragments.add(new VideoFragment());
+        VideoFragment fragment = new VideoFragment();
+        Video video = (Video) getIntent().getSerializableExtra("video");
+        fragment.setDeployedVideo(video);
+        fragments.add(fragment);
         fragments.add(new CameraFragment());
         fragments.add(new UserFragment());
     }

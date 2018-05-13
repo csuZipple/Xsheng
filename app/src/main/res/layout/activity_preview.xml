@@ -78,5 +78,12 @@
        android:src="@mipmap/delete"
        android:contentDescription="@string/app_english"/>
 
-
+   <ImageView
+       android:id="@+id/loading"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_centerInParent="true"
+       android:contentDescription="@string/app_english"
+       android:src="@mipmap/loading"
+       android:visibility="invisible"/>
 </RelativeLayout>
