@@ -10,16 +10,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.component.LinearProgressBar;
 import zippler.cn.xs.entity.Music;
-import zippler.cn.xs.handler.RecordTimerRunnable;
 import zippler.cn.xs.holder.MusicViewHolder;
 
 /**
@@ -30,19 +27,8 @@ public class RecyclerChooseMusicAdapter extends RecyclerView.Adapter<MusicViewHo
 
     private List<Music> musicList;
     private Context context;
-    //timer
-    private Handler handler;
-    private RecordTimerRunnable runnable;
 
-    private boolean isPause = true;
 
-    private ProgressBar progressBar;
-    private int progress = -1;
-    private int time = -1;
-
-    private int currentPos = -1;
-
-    private static Map<String,MusicViewHolder> maps = new HashMap<>();
     private String TAG=this.getClass().getSimpleName();
     public RecyclerChooseMusicAdapter(Context context,List<Music> musicList) {
         this.musicList = musicList;
@@ -53,10 +39,7 @@ public class RecyclerChooseMusicAdapter extends RecyclerView.Adapter<MusicViewHo
     @Override
     public MusicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_choose_music_item,parent,false);
-        MusicViewHolder holder = new MusicViewHolder(view);
-        Log.d(TAG, "onCreateViewHolder: "+musicList.size());
-        progressBar = holder.getMusicProgress();
-        return holder;
+        return new MusicViewHolder(view);
     }
 
     @Override
@@ -64,68 +47,46 @@ public class RecyclerChooseMusicAdapter extends RecyclerView.Adapter<MusicViewHo
         Music music = musicList.get(position);
         holder.getMusicName().setText(music.getName());
         holder.getMusicLength().setText(music.getLength());
-        time = (musicList.get(position).getDuration())/1000;//get seconds
-        MediaPlayer player =  MediaPlayer.create(this.getContext(), Uri.parse(musicList.get(position).getLocalStorageUrl()));
-        holder.setPlayer(player);
-        maps.put("",holder);
-        currentPos = position;
+
+        final MediaPlayer player = MediaPlayer.create(this.getContext(), Uri.parse(music.getLocalStorageUrl()));
+        final ImageView playBtn = holder.getPlay();
+        final int duration = music.getDuration();//ms
+        final LinearProgressBar progressBar = holder.getMusicProgress();//progress bar.
+        final Handler handler = new Handler();
+
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                int pos = (int)(((float)player.getCurrentPosition()/duration)*100);
+                Log.d(TAG, "run: duration:"+duration);
+                Log.d(TAG, "run: currentPosition:"+player.getCurrentPosition());
+                Log.d(TAG, System.currentTimeMillis()+" ms run: set progress :"+pos);
+                progressBar.setProgress(pos);
+                handler.postDelayed(this,500);
+            }
+        };
         holder.getPlay().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handler = new Handler();
-                if (isPause){
-                    startTimer(currentPos);
-                    isPause = false;
+                if (player.isPlaying()){
+                    playBtn.setImageResource(R.mipmap.play);
+                    player.pause();
+                    handler.removeCallbacks(runnable);
                 }else{
-                    pauseTimer(currentPos);
-                    isPause = true;
+                    playBtn.setImageResource(R.mipmap.pause);
+                    player.start();
+                    handler.postDelayed(runnable,500);
                 }
             }
         });
-
-
-        //set progress here.
-
     }
+
 
     @Override
     public int getItemCount() {
         return musicList.size();
     }
 
-
-    /**
-     * started the timer
-     */
-    private void startTimer(int pos){
-        Log.d(TAG, "startTimer: ");
-        Set<String> keys=   maps.keySet();
-        for (String key : keys) {
-            if (key.equals(pos+"")){
-                continue;
-            }
-            maps.get(key).getPlayer().stop();
-        }
-
-        System.out.println(maps.get(pos+"").getMusicName().getText());
-
-        maps.get(pos+"").getPlayer().start();
-        runnable = new RecordTimerRunnable(progress,time);
-        runnable.setHandler(handler);
-        runnable.setProgressBar(progressBar);
-        handler.postDelayed(runnable,1000);
-    }
-
-    /**
-     * stop the timer
-     */
-    private void pauseTimer(int pos){
-        maps.get(pos+"").getPlayer().pause();
-        progress = runnable.getProgress();//get current progress
-        handler.removeCallbacks(runnable);
-        runnable = null;
-        Log.d(TAG, "pauseTimer: pause timer");
-    }
 
     public List<Music> getMusicList() {
         return musicList;

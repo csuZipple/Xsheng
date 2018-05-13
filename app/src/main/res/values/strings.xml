@@ -15,7 +15,7 @@
     <string name="choose_music">选择音乐</string>
     <string name="auto_bgm">智能配乐</string>
     <string name="search_favorite_music">搜索你喜欢的音乐</string>
-    <string name="hot_composer">合成推荐</string>
+    <string name="hot_composer">音乐试听</string>
     <string name="auto_make">智能生成</string>
     <string name="next_step">下一步</string>
 </resources>

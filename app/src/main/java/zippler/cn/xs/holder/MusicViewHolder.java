@@ -1,6 +1,5 @@
 package zippler.cn.xs.holder;
 
-import android.media.MediaPlayer;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,8 +19,6 @@ public class MusicViewHolder extends RecyclerView.ViewHolder {
     private TextView musicLength;
     private ImageView play;
     private LinearProgressBar musicProgress;
-
-    private MediaPlayer player;
 
     public MusicViewHolder(View itemView) {
         super(itemView);
@@ -79,13 +76,5 @@ public class MusicViewHolder extends RecyclerView.ViewHolder {
 
     public void setMusicPogress(LinearProgressBar musicProgress) {
         this.musicProgress = musicProgress;
-    }
-
-    public MediaPlayer getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(MediaPlayer player) {
-        this.player = player;
     }
 }
