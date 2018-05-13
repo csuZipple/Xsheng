@@ -47,6 +47,10 @@ public class LinerLayoutManager extends LinearLayoutManager {
         startSmoothScroll(linearSmoothScroller);
     }
 
+    @Override
+    public boolean canScrollVertically() {
+        return true;
+    }
 
     public void setSpeedSlow() {
         MILLISECONDS_PER_INCH = context.getResources().getDisplayMetrics().density * 0.3f;

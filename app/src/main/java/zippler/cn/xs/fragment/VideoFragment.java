@@ -17,10 +17,9 @@ import java.util.List;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
-import zippler.cn.xs.listener.RecyclerScrollListener;
 import zippler.cn.xs.listener.SwipedRefreshListener;
 import zippler.cn.xs.util.LinerLayoutManager;
-import zippler.cn.xs.util.SpaceItemDecoration;
+import zippler.cn.xs.util.PagingScrollHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,15 +47,13 @@ public class VideoFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycle_view);
         LinerLayoutManager linerLayoutManager = new LinerLayoutManager(this.getContext());
         recyclerView.setLayoutManager(linerLayoutManager);
-        recyclerView.addItemDecoration(new SpaceItemDecoration(0,8));//it works well after I modified some code in this class
-//        recyclerView.addItemDecoration(new RemoveLastLineDividerItemDecoration(this.getContext(),DividerItemDecoration.VERTICAL));//why Fragment context might be null?
-        //inject data to recycler view == video adapter
+
+        PagingScrollHelper helper = new PagingScrollHelper();
+        helper.setUpRecycleView(recyclerView);
+
         initVideo();
         RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos);
         recyclerView.setAdapter(videoAdapter);
-
-        //recycler view scroll listener
-        recyclerView.addOnScrollListener(new RecyclerScrollListener(linerLayoutManager));
 
         initSwipedLayout(view);
         return view;

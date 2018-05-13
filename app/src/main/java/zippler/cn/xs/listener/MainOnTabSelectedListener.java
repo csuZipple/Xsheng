@@ -1,5 +1,6 @@
 package zippler.cn.xs.listener;
 
+import android.content.Context;
 import android.support.design.widget.TabLayout;
 
 import zippler.cn.xs.R;
@@ -10,10 +11,14 @@ import zippler.cn.xs.component.NoPreloadViewPager;
  * Setting a listener for tab layout item
  */
 public class MainOnTabSelectedListener implements TabLayout.OnTabSelectedListener {
+    private  Context context;
     private NoPreloadViewPager pager;
+    private TabLayout tablayout;
 
-    public MainOnTabSelectedListener(NoPreloadViewPager pager) {
+    public MainOnTabSelectedListener(NoPreloadViewPager pager, TabLayout tablayout,Context context) {
         this.pager = pager;
+        this.tablayout = tablayout;
+        this.context = context;
     }
 
     @Override
@@ -22,12 +27,13 @@ public class MainOnTabSelectedListener implements TabLayout.OnTabSelectedListene
          switch(position){
              case 0:
                  tab.setIcon(R.mipmap.refresh1);
+                 tablayout.setBackgroundColor(context.getResources().getColor(R.color.colorDark));
                  break;
              case 1:
                  tab.setIcon(R.mipmap.camera1);
                  break;
              case 2:
-                 tab.setIcon(R.mipmap.me1);
+                 tab.setIcon(R.mipmap.person1);
                  break;
          }
         pager.setCurrentItem(position);
@@ -37,13 +43,14 @@ public class MainOnTabSelectedListener implements TabLayout.OnTabSelectedListene
     public void onTabUnselected(TabLayout.Tab tab) {
         switch (tab.getPosition()){
             case 0:
-                tab.setIcon(R.mipmap.refresh2);
+                tab.setIcon(R.mipmap.refresh);
+                tablayout.setBackground(context.getDrawable(R.drawable.tab_background));
                 break;
             case 1:
-                tab.setIcon(R.mipmap.camera2);
+                tab.setIcon(R.mipmap.camera);
                 break;
             case 2:
-                tab.setIcon(R.mipmap.me2);
+                tab.setIcon(R.mipmap.person);
                 break;
         }
     }

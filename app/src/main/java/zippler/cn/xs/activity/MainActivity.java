@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initListener(){
-        tabLayout.setOnTabSelectedListener(new MainOnTabSelectedListener(viewPager));
+        tabLayout.setOnTabSelectedListener(new MainOnTabSelectedListener(viewPager,tabLayout,this));
         viewPager.setOnPageChangeListener(new MainOnPageChangeListener(tabLayout));
     }
 }

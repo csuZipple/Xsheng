@@ -3,7 +3,6 @@ package zippler.cn.xs.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,17 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
     public VideoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // add child layout in recycler view
         View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_recycler_video_item,parent,false);
-        VideoViewHolder holder = new VideoViewHolder(view);
+        return new VideoViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
+        //change child attribute here.
+        Video video = videoList.get(position);
+        holder.getName().setText(video.getDesc());
+        holder.getTime().setText(video.getDeployed().toString());
+        holder.getLength().setText(video.getLength());
+
         //add holder listener here. for example
         holder.getPlay().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,21 +54,6 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                 Toast.makeText(context,"you clicked this play button",Toast.LENGTH_SHORT).show();
             }
         });
-        return holder;
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        //change child attribute here.
-         Video video = videoList.get(position);
-         if (video!=null){
-             holder.getName().setText(video.getDesc());
-             holder.getTime().setText(video.getDeployed().toString());
-             holder.getLength().setText(video.getLength());
-         }else{
-             //keep default settings
-             Log.d(TAG, "onBindViewHolder: keep default settings.");
-         }
 
     }
 

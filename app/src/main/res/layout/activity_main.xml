@@ -23,11 +23,11 @@
         android:id="@+id/toolbar_tab"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#000000"
+        android:background="@color/colorDark"
         android:fillViewport="false"
         app:layout_scrollFlags="scroll"
         app:tabIndicatorColor="#ffffff"
-        app:tabIndicatorHeight="1dp"
+        app:tabIndicatorHeight="0dp"
         app:tabMode="fixed"
         app:tabSelectedTextColor="#057523"
         app:tabTextColor="#ced0d3">
@@ -40,13 +40,13 @@
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:icon="@mipmap/camera2" />
+            android:icon="@mipmap/camera" />
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:icon="@mipmap/me2" />
-
+            android:icon="@mipmap/person" />
+<!--1296db 515151-->
     </android.support.design.widget.TabLayout>
 
 </LinearLayout>

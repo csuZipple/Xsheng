@@ -22,7 +22,9 @@ public class DeployActivity extends BaseActivity {
     private Button deployBtn;
     private EditText desc ;
     private ImageView poster;
+    private ImageView backBtn;
     private long duration;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class DeployActivity extends BaseActivity {
         path = getIntent().getStringExtra("videoPath");
         desc = findViewById(R.id.video_desc_text);
         poster = findViewById(R.id.preview_video_img);
+        backBtn = findViewById(R.id.back_button);
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(path);
@@ -51,6 +54,7 @@ public class DeployActivity extends BaseActivity {
     private void registerListeners(){
         deployBtn.setOnClickListener(this);
         poster.setOnClickListener(this);
+        backBtn.setOnClickListener(this);
     }
 
     @Override
@@ -62,6 +66,9 @@ public class DeployActivity extends BaseActivity {
                 break;
             case R.id.preview_video_img:
                 preview();
+                break;
+            case R.id.back_button:
+                finish();
                 break;
             default:
                 break;
