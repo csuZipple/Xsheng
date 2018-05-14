@@ -1,14 +1,18 @@
 package zippler.cn.xs.fragment;
 
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.VideoView;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -18,6 +22,7 @@ import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.listener.SwipedRefreshListener;
+import zippler.cn.xs.util.ImageFileUtil;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.PagingScrollHelper;
 
@@ -50,6 +55,35 @@ public class VideoFragment extends Fragment {
 
         PagingScrollHelper helper = new PagingScrollHelper();
         helper.setUpRecycleView(recyclerView);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                boolean isDown = dy<0;
+                LinearLayoutManager llm = (LinearLayoutManager)recyclerView.getLayoutManager();
+                int nowPos = llm.findFirstVisibleItemPosition();
+                if (isDown){
+                    nowPos--;
+                }else{
+                    nowPos++;
+                }
+                //set the last view default settings
+                if (nowPos<0) nowPos=1;
+                View lastView = llm.findViewByPosition(nowPos);
+                if (lastView!=null){
+                    VideoView videoView = lastView.findViewById(R.id.video_show);
+                    ImageView poster = lastView.findViewById(R.id.poster);
+                    ImageView playBtn = lastView.findViewById(R.id.play);
+                    if (videoView.isPlaying()){
+                        videoView.stopPlayback();//or pause?
+                    }
+                    if (poster.getVisibility()==View.INVISIBLE){
+                        playBtn.setVisibility(View.VISIBLE);
+                        poster.setVisibility(View.VISIBLE);
+                    }
+                }
+
+            }
+        });
 
         initVideo();
         RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos);
@@ -78,7 +112,10 @@ public class VideoFragment extends Fragment {
         for (int i = 0; i < 10; i++) {
             temp = new Video();
             temp.setDesc("我还是很喜欢你，像风走了八百里.");
-            temp.setLength(i*1000);
+
+            String path = "android.resource://" + getActivity().getPackageName() + "/" + R.raw.v1;
+            temp.setLocalStorageUrl(path);
+            temp.setLength((int) ImageFileUtil.getDuration(getContext(), Uri.parse(path)));
             temp.setDeployed(new Timestamp(System.currentTimeMillis()));//set current time to test
             videos.add(temp);
         }

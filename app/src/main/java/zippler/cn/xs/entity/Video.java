@@ -12,6 +12,7 @@ public class Video implements Serializable {
     private User user;
     private String name;
     private String url;
+    private String localStorageUrl;
     private String desc;
     private Timestamp deployed;
     private int favorite;
@@ -111,5 +112,13 @@ public class Video implements Serializable {
         strMilliSecond = milliSecond < 100 ? "0" + strMilliSecond : "" + strMilliSecond;
 
         return strMinute + ":" + strSecond;
+    }
+
+    public String getLocalStorageUrl() {
+        return localStorageUrl;
+    }
+
+    public void setLocalStorageUrl(String localStorageUrl) {
+        this.localStorageUrl = localStorageUrl;
     }
 }

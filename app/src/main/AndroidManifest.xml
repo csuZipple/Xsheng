@@ -30,6 +30,8 @@
         <activity android:name=".activity.DeployActivity" />
         <activity android:name=".activity.PreviewMusicActivity" />
         <activity android:name=".activity.PreviewFullVideoActivity"/>
+        <activity android:name=".activity.SettingsActivity" />
+        <activity android:name=".activity.UserInfoActivity" />
     </application>
 
 </manifest>

@@ -2,8 +2,6 @@ package zippler.cn.xs.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +13,7 @@ import java.sql.Timestamp;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.entity.Video;
+import zippler.cn.xs.util.ImageFileUtil;
 
 public class DeployActivity extends BaseActivity {
 
@@ -43,11 +42,8 @@ public class DeployActivity extends BaseActivity {
         poster = findViewById(R.id.preview_video_img);
         backBtn = findViewById(R.id.back_button);
 
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
-        Bitmap bitmap = retriever.getFrameAtTime(0);
-        poster.setImageBitmap(bitmap);//Is there a more efficient way？
-        duration = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        ImageFileUtil.setFirstFrame(poster,path);
+        duration = ImageFileUtil.getDuration(path);
 
     }
 
@@ -76,10 +72,8 @@ public class DeployActivity extends BaseActivity {
     }
 
     private void preview(){
-//        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, poster, "videoImg");
         Intent intent = new Intent(this, PreviewFullVideoActivity.class);
         intent.putExtra("videoPath",path);
-//        startActivity(intent,options.toBundle());
         startActivity(intent);
     }
 
@@ -100,6 +94,7 @@ public class DeployActivity extends BaseActivity {
                     video.setDesc(desc.getText().toString());
                     video.setDeployed(new Timestamp(System.currentTimeMillis()));
                     video.setLength((int) duration);
+                    video.setUrl(path);
                     intent.putExtra("video",video);
                     startActivity(intent);
                     dialog.dismiss();

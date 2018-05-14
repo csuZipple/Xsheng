@@ -33,6 +33,7 @@ public class MainOnTabSelectedListener implements TabLayout.OnTabSelectedListene
                  tab.setIcon(R.mipmap.camera1);
                  break;
              case 2:
+                 tablayout.setBackgroundColor(context.getResources().getColor(R.color.colorDark2));
                  tab.setIcon(R.mipmap.person1);
                  break;
          }
@@ -50,6 +51,7 @@ public class MainOnTabSelectedListener implements TabLayout.OnTabSelectedListene
                 tab.setIcon(R.mipmap.camera);
                 break;
             case 2:
+                tablayout.setBackground(context.getDrawable(R.drawable.tab_background));
                 tab.setIcon(R.mipmap.person);
                 break;
         }

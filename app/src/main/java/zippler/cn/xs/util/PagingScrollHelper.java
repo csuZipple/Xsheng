@@ -20,6 +20,8 @@ public class PagingScrollHelper {
     private int currentPage = -1;
     private int oldPage;
 
+    private RecyclerView.LayoutManager layoutManager;
+
     private MyOnScrollListener mOnScrollListener = new MyOnScrollListener();
 
     private MyOnFlingListener mOnFlingListener = new MyOnFlingListener();
@@ -78,7 +80,7 @@ public class PagingScrollHelper {
         //处理滑动
         recycleView.setOnFlingListener(mOnFlingListener);
         //设置滚动监听，记录滚动的状态，和总的偏移量
-        recycleView.setOnScrollListener(mOnScrollListener);
+        recycleView.addOnScrollListener(mOnScrollListener);
         //记录滚动开始的位置
         recycleView.setOnTouchListener(mOnTouchListener);
         //获取滚动的方向
@@ -86,7 +88,7 @@ public class PagingScrollHelper {
     }
 
     public void updateLayoutManger() {
-        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        layoutManager = mRecyclerView.getLayoutManager();
         if (layoutManager != null) {
             if (layoutManager.canScrollVertically()) {
                 mOrientation = ORIENTATION.VERTICAL;
@@ -193,13 +195,7 @@ public class PagingScrollHelper {
                 if (currentPage!=oldPage){
                     pageChangedListener.onChanged(currentPage);
                    }
-
-
-
             }
-
-
-
             return true;
         }
     }

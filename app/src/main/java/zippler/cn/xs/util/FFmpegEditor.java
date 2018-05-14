@@ -262,7 +262,7 @@ public class FFmpegEditor  {
     }
 
     public static void mergeByLc(String root, List<EpVideo> epVideos, FFmpegEditor.OutputOption outputOption, OnEditorListener onEditorListener) {
-        String fileName = "ffmpeg_concat.txt";
+        String fileName = "video_concat.txt";
         List<String> videos = new ArrayList<>();
         for (EpVideo e : epVideos) {
             videos.add(e.getVideoPath());

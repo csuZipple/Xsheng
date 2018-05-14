@@ -1,8 +1,16 @@
 package zippler.cn.xs.util;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.widget.ImageView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.media.MediaMetadataRetriever.OPTION_CLOSEST;
 
 /**
  * Created by Zipple on 2018/5/8.
@@ -38,6 +46,36 @@ public class ImageFileUtil {
         isImageFile = FileEnd.equals("jpg") || FileEnd.equals("png") || FileEnd.equals("gif")
                 || FileEnd.equals("jpeg") || FileEnd.equals("bmp");
         return isImageFile;
+    }
+
+    /**
+     *  set first frame from video
+     * @param img which img to show
+     * @param videoPath video path
+     */
+    public static void setFirstFrame(ImageView img,String videoPath){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(videoPath);
+        Bitmap bitmap = retriever.getFrameAtTime(0,OPTION_CLOSEST);
+        img.setImageBitmap(bitmap);//Is there a more efficient way？
+    }
+
+    public static void setFirstFrame(ImageView img, Context context, Uri videoPath){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context,videoPath);
+        Bitmap bitmap = retriever.getFrameAtTime(0,OPTION_CLOSEST);
+        img.setImageBitmap(bitmap);//Is there a more efficient way？
+    }
+
+    public static long getDuration(String videoPath){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(videoPath);
+        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+    }
+    public static long getDuration(Context context, Uri videoPath){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context,videoPath);
+        return Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
     }
 
 }

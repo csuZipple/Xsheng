@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.component.CircleImageView;
@@ -19,6 +20,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     private CircleImageView avatar;
     private ImageView play;
     private TextView length;
+    private VideoView videoview;
 
     public VideoViewHolder(View itemView) {
         super(itemView);
@@ -28,6 +30,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         avatar = itemView.findViewById(R.id.avatar);
         length = itemView.findViewById(R.id.length);
         play = itemView.findViewById(R.id.play);
+        videoview = itemView.findViewById(R.id.video_show);
     }
 
     public ImageView getPoster() {
@@ -76,5 +79,13 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
 
     public void setPlay(ImageView play) {
         this.play = play;
+    }
+
+    public VideoView getVideoview() {
+        return videoview;
+    }
+
+    public void setVideoview(VideoView videoview) {
+        this.videoview = videoview;
     }
 }

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,6 +40,7 @@ import zippler.cn.xs.adapter.RecyclerThumbnailsAdapter;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.listener.CombinedMusicEditorListener;
 import zippler.cn.xs.util.FFmpegEditor;
+import zippler.cn.xs.util.FileUtil;
 import zippler.cn.xs.util.ImageFileUtil;
 
 public class PreviewActivity extends BaseActivity {
@@ -170,7 +170,7 @@ public class PreviewActivity extends BaseActivity {
             if (!hasFinishedBefore){
                 mkfComplete(path);
             }else{
-                String root = getCamera2Path()+"cache/";
+                String root = FileUtil.getCamera2Path()+"cache/";
                 String temporary  =root+path.substring(path.lastIndexOf("/")+1,path.lastIndexOf("."))+"/";
                 thumbs.clear();
                 thumbs.addAll(ImageFileUtil.getImagesInPath(temporary));
@@ -247,7 +247,7 @@ public class PreviewActivity extends BaseActivity {
      * @return path
      */
     private String saveBitmap(@NonNull Bitmap bitmap, String videoPath) throws IOException{
-        String root = getCamera2Path()+"cache/";
+        String root = FileUtil.getCamera2Path()+"cache/";
         String temporary  =root+videoPath.substring(videoPath.lastIndexOf("/")+1,videoPath.lastIndexOf("."))+"/";
         String path;
 
@@ -295,7 +295,7 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private void mkfComplete(String videoPath){
-        String root = getCamera2Path()+"cache"+videoPath.substring(videoPath.lastIndexOf("/"),videoPath.lastIndexOf("."))+"/";
+        String root = FileUtil.getCamera2Path()+"cache"+videoPath.substring(videoPath.lastIndexOf("/"),videoPath.lastIndexOf("."))+"/";
         File file = new File(root);
         if (file.exists()){
             File okFile = new File(root+"complete");
@@ -398,18 +398,18 @@ public class PreviewActivity extends BaseActivity {
 
     private List<Music> depositMp3(){
         String cache = "mp3"+File.separator;
-        createDir(getCamera2Path()+cache);
+        FileUtil.createSavePath(FileUtil.getCamera2Path()+cache);
 
         List<Music> musics = new ArrayList<>();
 
         //deposit here...
         Music temp = new Music();
-        temp.setLocalStorageUrl(getCamera2Path()+"test.mp3");
+        temp.setLocalStorageUrl(FileUtil.getCamera2Path()+"test.mp3");
         temp.setName("Tank");
         musics.add(temp);
 
         temp = new Music();
-        temp.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+        temp.setLocalStorageUrl(FileUtil.getCamera2Path()+"j.mp3");
         temp.setName("Hora");
         musics.add(temp);
 
@@ -423,11 +423,10 @@ public class PreviewActivity extends BaseActivity {
             return;
         }
         Music temp = musics.remove(0);
-        String cache = "video"+File.separator;
-        createDir(getCamera2Path()+cache);
+        String cache = "videoCache"+File.separator;
+        FileUtil.createSavePath(FileUtil.getCamera2Path()+cache);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        output= getCamera2Path()+cache+"py_"+timeStamp+".mp4";
-//        listener = new CombinedMusicEditorListener(this);
+        output= FileUtil.getCamera2Path()+cache+"py_"+timeStamp+".mp4";
         FFmpegEditor.music(path, temp.getLocalStorageUrl(), output, 0.3f, 1.0f, new OnEditorListener() {
             @Override
             public void onSuccess() {
@@ -443,7 +442,7 @@ public class PreviewActivity extends BaseActivity {
             public void onProgress(float v) {
 
             }
-        });//如何释放资源？？
+        });
         videoPaths.add(output);
     }
 
@@ -462,22 +461,6 @@ public class PreviewActivity extends BaseActivity {
             }else{
                 Log.e(TAG, "deleteCurrentVideo: error in delete current video" );
             }
-        }
-    }
-
-    public static String getCamera2Path() {
-        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator+"xsheng"+File.separator;
-        File file = new File(picturePath);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        return picturePath;
-    }
-
-    public static void createDir(String path){
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
         }
     }
 

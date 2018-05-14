@@ -10,7 +10,6 @@ import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ import zippler.cn.xs.R;
 import zippler.cn.xs.handler.RecordTimerRunnable;
 import zippler.cn.xs.listener.CombinedOnEditorListener;
 import zippler.cn.xs.util.FFmpegEditor;
+import zippler.cn.xs.util.FileUtil;
 
 public class RecorderActivity extends BaseActivity implements TextureView.SurfaceTextureListener{
 
@@ -339,8 +338,8 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         isRecordOn = true;//fixed camera unlock failed
         reverse.setVisibility(View.GONE);//maybe invisible
         //save video
-        String root = getCamera2Path();
-        createSavePath(root);
+        String root = FileUtil.getCamera2Path();
+        FileUtil.createSavePath(root);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         savedVideoPath = root + "形声_" + timeStamp + ".mp4";
         mediaRecorder.setOutputFile(savedVideoPath);
@@ -439,8 +438,8 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
      * @return the combined video path
      */
     private String combinedVideos(List<String> paths){
-        String root = getCamera2Path();
-        createSavePath(root);
+        String root = FileUtil.getCamera2Path();
+        FileUtil.createSavePath(root);
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String outFile = root + "合成_" + timeStamp + ".mp4";
         ArrayList<EpVideo> epVideos = new ArrayList<>();
@@ -597,21 +596,6 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         });
     }
 
-    public static String getCamera2Path() {
-        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
-        File file = new File(picturePath);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        return picturePath;
-    }
-
-    public static void createSavePath(String path){
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-    }
 
     private Rect calculateTapArea(float x, float y, float coefficient, Camera.Size previewSize) {
         float focusAreaSize = 300;

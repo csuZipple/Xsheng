@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerMusicAdapter;
 import zippler.cn.xs.listener.OnPageChangedListener;
-import zippler.cn.xs.util.LinerLayoutManager;
+import zippler.cn.xs.util.FileUtil;
 import zippler.cn.xs.util.PagingScrollHelper;
 
 /**
@@ -91,7 +90,7 @@ public class PreviewMusicActivity extends BaseActivity {
     }
 
     private void initRecyclerView(){
-        LinerLayoutManager linerLayoutManager = new LinerLayoutManager(this);
+        LinearLayoutManager linerLayoutManager = new LinearLayoutManager(this);
         linerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         musics.setLayoutManager(linerLayoutManager);
 
@@ -163,7 +162,15 @@ public class PreviewMusicActivity extends BaseActivity {
 
     private void gotoDeploy(){
         Intent intent = new Intent(this,DeployActivity.class);
-        intent.putExtra("videoPath",data.get(currentPosition));
+
+        //move to deploy
+        String deploy = FileUtil.move2Folders(data.get(currentPosition),FileUtil.getCamera2Path()+"deploy"+ File.separator);
+        if (deploy!=null&&!deploy.equals("")){
+            intent.putExtra("videoPath",deploy);
+        }else{
+            Log.e(TAG, "gotoDeploy: error in move files.." );
+            intent.putExtra("videoPath",data.get(currentPosition));
+        }
         startActivity(intent);
     }
 
@@ -193,12 +200,4 @@ public class PreviewMusicActivity extends BaseActivity {
         }
     }
 
-    public static String getCamera2Path() {
-        String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
-        File file = new File(picturePath);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        return picturePath;
-    }
 }
