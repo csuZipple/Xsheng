@@ -9,11 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.List;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.activity.PreviewFullVideoActivity;
-import zippler.cn.xs.util.ImageFileUtil;
 
 /**
  * Created by Zipple on 2018/5/14.
@@ -38,7 +40,8 @@ public class UserVideoPreviewAdapter extends RecyclerView.Adapter<UserVideoPrevi
     @Override
     public void onBindViewHolder(@NonNull UserVideoPreviewAdapter.VideoViewHolder holder, final int position) {
         final String path = videos.get(position);
-        ImageFileUtil.setFirstFrame(holder.getImageView(),videos.get(position));
+//        ImageFileUtil.setFirstFrame(holder.getImageView(),videos.get(position));
+        Glide.with(context).load(new File(path)).thumbnail(1.0f).into(holder.getImageView());
         holder.getImageView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

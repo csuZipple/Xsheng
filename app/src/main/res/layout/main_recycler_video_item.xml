@@ -39,6 +39,8 @@
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:text="我还是喜欢你，像风走了八千里"
+               android:maxLines="2"
+               android:ellipsize="end"
                android:typeface="serif"
                android:textSize="20sp"
                android:padding="6dp"

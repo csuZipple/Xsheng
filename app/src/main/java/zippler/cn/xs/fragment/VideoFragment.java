@@ -1,30 +1,34 @@
 package zippler.cn.xs.fragment;
 
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.VideoView;
 
-import java.sql.Timestamp;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.listener.SwipedRefreshListener;
+import zippler.cn.xs.util.FileUtil;
 import zippler.cn.xs.util.ImageFileUtil;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.PagingScrollHelper;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +36,15 @@ import zippler.cn.xs.util.PagingScrollHelper;
 public class VideoFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
+
+    private String[] defaultTitle ={"阳光正好，微风不燥",
+            " 不是无情，亦非薄幸",
+            "再多的语言与眼泪，也无法让另一个人知道你的悲伤",
+            "这是一个流行离开的世界，但是我们都不擅长告别",
+            "有些人看起来毫不在乎你，其实你不知道他忍住了多少次想要联系你的冲动",
+            " 她的头发梳得很整齐，像一顶光亮的大帽子",
+            "有人牵挂的漂泊不叫流浪",
+            "但行眼前事，莫愁眼前人"};
 
 
 
@@ -61,13 +74,13 @@ public class VideoFragment extends Fragment {
                 boolean isDown = dy<0;
                 LinearLayoutManager llm = (LinearLayoutManager)recyclerView.getLayoutManager();
                 int nowPos = llm.findFirstVisibleItemPosition();
+                Log.e(TAG, "onScrolled: nowPos:"+nowPos);
                 if (isDown){
                     nowPos--;
                 }else{
                     nowPos++;
                 }
                 //set the last view default settings
-                if (nowPos<0) nowPos=1;
                 View lastView = llm.findViewByPosition(nowPos);
                 if (lastView!=null){
                     VideoView videoView = lastView.findViewById(R.id.video_show);
@@ -109,16 +122,20 @@ public class VideoFragment extends Fragment {
     private void initVideo(){
         videos = new ArrayList<>();
         Video temp ;
-        for (int i = 0; i < 10; i++) {
-            temp = new Video();
-            temp.setDesc("我还是很喜欢你，像风走了八百里.");
+        String basePath = FileUtil.getCamera2Path()+"deploy"+ File.separator;
+        List<String> pathList = FileUtil.traverseFolder(basePath);
 
-            String path = "android.resource://" + getActivity().getPackageName() + "/" + R.raw.v1;
-            temp.setLocalStorageUrl(path);
-            temp.setLength((int) ImageFileUtil.getDuration(getContext(), Uri.parse(path)));
-            temp.setDeployed(new Timestamp(System.currentTimeMillis()));//set current time to test
+        assert pathList != null;
+        Collections.reverse(pathList);
+        for (String url:pathList) {
+            temp = new Video();
+            temp.setUrl(url);
+            temp.setDesc(defaultTitle[(int) (Math.random()*8)]);
+            temp.setLength((int) ImageFileUtil.getDuration(url));
+            temp.setDeployed(FileUtil.getLastModifiedTime(url));
             videos.add(temp);
         }
+
         if (deployedVideo!=null){
             videos.add(0,deployedVideo);
         }

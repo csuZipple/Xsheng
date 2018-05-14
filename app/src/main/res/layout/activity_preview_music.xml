@@ -101,4 +101,16 @@
     </RelativeLayout>
 
 
+    <ImageView
+        android:id="@+id/c_loading_logo"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:layout_centerInParent="true"
+        android:src="@mipmap/loading"
+        android:visibility="invisible"
+        android:contentDescription="@string/app_english"
+        />
+
 </RelativeLayout>

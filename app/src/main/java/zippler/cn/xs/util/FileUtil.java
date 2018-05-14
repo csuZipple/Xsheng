@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,5 +122,11 @@ public class FileUtil {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static Timestamp getLastModifiedTime(String filePath){
+        File file = new File(filePath);
+        long time = file.lastModified();
+        return new Timestamp(time);
     }
 }

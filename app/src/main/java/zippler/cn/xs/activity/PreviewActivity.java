@@ -319,6 +319,8 @@ public class PreviewActivity extends BaseActivity {
         try {
 //          uploadByPost("");
 
+            //视频过滤
+
             List<Music> musics = depositMp3();
             Log.d(TAG, "upload: music size = "+musics.size());
 
@@ -448,7 +450,6 @@ public class PreviewActivity extends BaseActivity {
 
     private void forwardPages(){
         Intent intent = new Intent(this,PreviewMusicActivity.class);
-        //传递配好背景音的视频路径
         intent.putStringArrayListExtra("videoPaths",  videoPaths);
         startActivity(intent);
     }
@@ -467,18 +468,14 @@ public class PreviewActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        loading.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (videoView.isPlaying()){
-            playBtn.setVisibility(View.VISIBLE);
-            videoView.pause();
-        }else{
-            playBtn.setVisibility(View.GONE);
-            videoView.start();
+            loading.setVisibility(View.INVISIBLE);
+            playBtn.setVisibility(View.INVISIBLE);
         }
     }
 

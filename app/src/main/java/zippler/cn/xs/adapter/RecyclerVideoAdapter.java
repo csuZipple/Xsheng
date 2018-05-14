@@ -14,12 +14,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.List;
 
 import zippler.cn.xs.R;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
-import zippler.cn.xs.util.ImageFileUtil;
 
 
 /**
@@ -51,7 +53,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         //change child attribute here.
         final Video video = videoList.get(position);
         holder.getName().setText(video.getDesc());
-        holder.getTime().setText(video.getDeployed().toString());
+        holder.getTime().setText(video.getDeployed());
         holder.getLength().setText(video.getLength());
         final ImageView poster = holder.getPoster();
         final VideoView videoView = holder.getVideoview();
@@ -61,11 +63,13 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         String url = video.getUrl();
         if (url!=null){
             videoView.setVideoPath(url);
-            ImageFileUtil.setFirstFrame(poster,url);//time waste...
+//            ImageFileUtil.setFirstFrame(poster,url);//time waste...
+            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
-                ImageFileUtil.setFirstFrame(poster,context,Uri.parse(localUrl));//time waste...
+//                ImageFileUtil.setFirstFrame(poster,context,Uri.parse(localUrl));//time waste...
+                Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
             }
         }
 

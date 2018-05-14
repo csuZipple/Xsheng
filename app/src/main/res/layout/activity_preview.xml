@@ -80,8 +80,10 @@
 
    <ImageView
        android:id="@+id/loading"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
+       android:layout_width="60dp"
+       android:layout_height="60dp"
+       android:adjustViewBounds="true"
+       android:scaleType="fitXY"
        android:layout_centerInParent="true"
        android:contentDescription="@string/app_english"
        android:src="@mipmap/loading"

@@ -1,5 +1,6 @@
 package zippler.cn.xs.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,14 +10,23 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
+import VideoHandle.EpDraw;
+import VideoHandle.EpEditor;
+import VideoHandle.EpVideo;
+import VideoHandle.OnEditorListener;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerMusicAdapter;
 import zippler.cn.xs.listener.OnPageChangedListener;
@@ -32,12 +42,14 @@ public class PreviewMusicActivity extends BaseActivity {
     private TextView nextStep;
     private VideoView video;
     private ImageView playBtn;
+    private ImageView loading;
     private RelativeLayout guideLayout;
     private RecyclerView musics;
 
 
     private ArrayList<String> data;
     private int currentPosition = 0;
+    private String out;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +68,7 @@ public class PreviewMusicActivity extends BaseActivity {
         playBtn = findViewById(R.id.play_btn_m);
         guideLayout = findViewById(R.id.guide_layout);
         musics = findViewById(R.id.musics);
+        loading = findViewById(R.id.c_loading_logo);
 
         if (isFirstIn()){
             guideLayout.setVisibility(View.GONE);
@@ -160,18 +173,65 @@ public class PreviewMusicActivity extends BaseActivity {
         }
     }
 
+    private void addLogo(String in,OnEditorListener listener){
+        String logo = FileUtil.getCamera2Path()+"logo.png";//should be loaded from internet.
+
+        EpDraw epDraw = new EpDraw(logo,30,1630,100,100,false);
+        EpVideo epVideo = new EpVideo(in);
+        epVideo.addDraw(epDraw);
+
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        out = FileUtil.getCamera2Path()+"deploy"+File.separator+"py_logo_"+timeStamp+".mp4";
+
+
+        EpEditor.OutputOption outputOption = new EpEditor.OutputOption(out);
+        outputOption.frameRate = 60;
+        outputOption.bitRate = 5*1024*1024;
+        EpEditor.exec(epVideo, outputOption,listener);
+    }
+
     private void gotoDeploy(){
-        Intent intent = new Intent(this,DeployActivity.class);
+        video.pause();
+
+        final Intent intent = new Intent(this,DeployActivity.class);
 
         //move to deploy
+        String result;
         String deploy = FileUtil.move2Folders(data.get(currentPosition),FileUtil.getCamera2Path()+"deploy"+ File.separator);
         if (deploy!=null&&!deploy.equals("")){
-            intent.putExtra("videoPath",deploy);
+            result = deploy;
         }else{
             Log.e(TAG, "gotoDeploy: error in move files.." );
-            intent.putExtra("videoPath",data.get(currentPosition));
+            result = data.get(currentPosition);
         }
-        startActivity(intent);
+
+        //add logo in video .
+        video.pause();
+        loading.setVisibility(View.VISIBLE);
+
+        Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
+        LinearInterpolator lin = new LinearInterpolator();
+        operatingAnim.setInterpolator(lin);
+        loading.startAnimation(operatingAnim);
+
+        addLogo(result, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+                intent.putExtra("videoPath",out);
+                startActivity(intent);
+                finish();//not to back...because of this video maybe deleted.
+            }
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: add logo failed" );
+            }
+
+            @Override
+            public void onProgress(float v) {
+            }
+        });
+
     }
 
 
