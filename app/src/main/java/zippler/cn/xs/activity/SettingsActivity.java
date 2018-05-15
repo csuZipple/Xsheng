@@ -1,5 +1,6 @@
 package zippler.cn.xs.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,7 @@ import zippler.cn.xs.util.FileUtil;
 
 public class SettingsActivity extends BaseActivity {
     private RelativeLayout clearCache;
+    private RelativeLayout about_layout;
     private TextView cacheSize;
     private List<String> videoCache;
     @Override
@@ -29,6 +31,7 @@ public class SettingsActivity extends BaseActivity {
 
     private void initViews(){
         clearCache = findViewById(R.id.clear_cache);
+        about_layout = findViewById(R.id.about_layout);
         cacheSize = findViewById(R.id.cache_size);
         cacheSize.setText(getCacheSize()+"MB");
     }
@@ -36,6 +39,7 @@ public class SettingsActivity extends BaseActivity {
 
     private void registerListeners() {
         clearCache.setOnClickListener(this);
+        about_layout.setOnClickListener(this);
     }
 
     private String getCacheSize(){
@@ -91,7 +95,9 @@ public class SettingsActivity extends BaseActivity {
             case R.id.clear_cache:
                 clearCache();
                 break;
-
+            case R.id.about_layout:
+                Intent intent = new Intent(this,AboutActivity.class);
+                startActivity(intent);
             default:
                 Log.d(TAG, "onClick: default clicked");
         }
