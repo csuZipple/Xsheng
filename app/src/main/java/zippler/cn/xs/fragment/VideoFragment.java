@@ -123,17 +123,20 @@ public class VideoFragment extends Fragment {
         Video temp ;
         String basePath = FileUtil.getCamera2Path()+"deploy"+ File.separator;
         List<String> pathList = FileUtil.traverseFolder(basePath);
-        assert pathList != null;
-        Log.d(TAG, "initVideo: get local videos size = "+pathList.size());
-//        Collections.reverse(pathList);
-        for (String url:pathList) {
-            temp = new Video();
-            temp.setUrl(url);
-            temp.setDesc(defaultTitle[(int) (Math.random()*8)]);
-            temp.setLength((int) ImageFileUtil.getDuration(url));
-            temp.setDeployed(FileUtil.getLastModifiedTime(url));
-            videos.add(temp);
+        if (pathList != null){
+            Log.d(TAG, "initVideo: get local videos size = "+pathList.size());
+            for (String url:pathList) {
+                temp = new Video();
+                temp.setUrl(url);
+                temp.setDesc(defaultTitle[(int) (Math.random()*8)]);
+                temp.setLength((int) ImageFileUtil.getDuration(url));
+                temp.setDeployed(FileUtil.getLastModifiedTime(url));
+                videos.add(temp);
+            }
+        }else{
+            Log.d(TAG, "initVideo: no deployed video here..");
         }
+
 
         if (deployedVideo!=null){
             videos.add(0,deployedVideo);
