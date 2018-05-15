@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -94,6 +95,13 @@ public class PreviewMusicActivity extends BaseActivity {
         video.setOnClickListener(this);
         playBtn.setOnClickListener(this);
         guideLayout.setOnClickListener(this);
+    }
+
+    private void removeListeners(){
+        nextStep.setOnClickListener(null);
+        video.setOnClickListener(null);
+        playBtn.setOnClickListener(null);
+        guideLayout.setOnClickListener(null);
     }
 
     private void initDatas(){
@@ -211,8 +219,12 @@ public class PreviewMusicActivity extends BaseActivity {
 
         Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
         LinearInterpolator lin = new LinearInterpolator();
-        operatingAnim.setInterpolator(lin);
+//        operatingAnim.setInterpolator(lin);
+        operatingAnim.setInterpolator(new BounceInterpolator());
         loading.startAnimation(operatingAnim);
+
+        removeListeners();
+
 
         addLogo(result, new OnEditorListener() {
             @Override

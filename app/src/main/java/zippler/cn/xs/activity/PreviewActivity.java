@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -220,6 +220,15 @@ public class PreviewActivity extends BaseActivity {
         });
     }
 
+    private void removeListeners(){
+        nextStep.setOnClickListener(null);
+        back.setOnClickListener(null);
+        playBtn.setOnClickListener(null);
+        deleteBtn.setOnClickListener(null);
+
+        videoView.setOnTouchListener(null);
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -330,9 +339,13 @@ public class PreviewActivity extends BaseActivity {
             videoView.pause();
 
             Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
-            LinearInterpolator lin = new LinearInterpolator();
-            operatingAnim.setInterpolator(lin);
+//            LinearInterpolator lin = new LinearInterpolator();
+            operatingAnim.setInterpolator(new BounceInterpolator());
             loading.startAnimation(operatingAnim);
+
+
+            removeListeners();
+
             attachBgm(musics);
 
         } catch (Exception e) {

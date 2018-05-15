@@ -1,10 +1,13 @@
 package zippler.cn.xs.util;
 
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 
 public class FileUtil {
     private static final String TAG = "FileUtil";
+    private final static String PREFIX_VIDEO="video/";
     static boolean writeContentsToTxt(String path, List<String> content){
         boolean result = false;
         String strContent = "";
@@ -87,6 +91,33 @@ public class FileUtil {
         }
         return paths;
     }
+
+
+    /**
+     * Get the Mime Type from a File
+     * @param fileName 文件名
+     * @return 返回MIME类型
+     * thx https://www.oschina.net/question/571282_223549
+     * add by fengwenhua 2017年5月3日09:55:01
+     */
+    private static String getMimeType(String fileName) {
+        FileNameMap fileNameMap = URLConnection.getFileNameMap();
+        return fileNameMap.getContentTypeFor(fileName);
+    }
+
+    /**
+     * 根据文件后缀名判断 文件是否是视频文件
+     * @param fileName 文件名
+     * @return 是否是视频文件
+     */
+    public static boolean isVedioFile(String fileName){
+        String mimeType = getMimeType(fileName);
+        if (!TextUtils.isEmpty(fileName)&&mimeType.contains(PREFIX_VIDEO)){
+            return true;
+        }
+        return false;
+    }
+
 
     public static String getCamera2Path() {
         String picturePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/xsheng/";
