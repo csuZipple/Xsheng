@@ -11,11 +11,11 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
+        /*try {
             Thread.sleep(500);//loading 500 ms
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
         startActivity(new Intent(this, GuideActivity.class));
         finish();
     }

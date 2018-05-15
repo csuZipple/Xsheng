@@ -11,7 +11,7 @@ import zippler.cn.xs.util.StateBarUtil;
  * The app guidance page
  */
 public class GuideActivity extends BaseActivity {
-    private static final int DELAY = 2000;//delay 2 seconds
+    private static final int DELAY = 1000;//delay 2 seconds
     private Handler x;
     private GuideActivity.SplashHandler splashHandler;
     @Override

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 import zippler.cn.xs.R;
@@ -48,7 +47,7 @@ public class UserVideoFragment extends Fragment {
         List<String> pathList = FileUtil.traverseFolder(basePath);
         if (pathList!=null&&pathList.size()>0){
             imageView.setVisibility(View.GONE);
-            Collections.reverse(pathList);
+//            Collections.reverse(pathList);
             recyclerView.setAdapter(new UserVideoPreviewAdapter(getContext(),pathList));
         }else{
             imageView.setVisibility(View.VISIBLE);

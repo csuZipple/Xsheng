@@ -29,6 +29,8 @@ public class PreviewFullVideoActivity extends BaseActivity {
             }
         });
 
+        video.setOnClickListener(this);
+
         video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {

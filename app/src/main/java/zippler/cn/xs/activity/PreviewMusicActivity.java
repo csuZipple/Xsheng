@@ -10,10 +10,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,6 +30,7 @@ import VideoHandle.OnEditorListener;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerMusicAdapter;
 import zippler.cn.xs.listener.OnPageChangedListener;
+import zippler.cn.xs.util.FFmpegEditor;
 import zippler.cn.xs.util.FileUtil;
 import zippler.cn.xs.util.PagingScrollHelper;
 
@@ -123,14 +123,14 @@ public class PreviewMusicActivity extends BaseActivity {
             public void onChanged(int position) {
                 Log.d(TAG, "onChanged: page changed!!!!  "+position);
                  //change video here
-                if (position<data.size()&&position>=0){
+                if (position<data.size()-1&&position>=0){
                     video.setVideoPath(data.get(position));
                     currentPosition = position;
                 }
             }
         });
 
-        RecyclerMusicAdapter adapter = new RecyclerMusicAdapter(data);
+        RecyclerMusicAdapter adapter = new RecyclerMusicAdapter(this,data);
         musics.setAdapter(adapter);
 
         if (guideLayout.getVisibility()==View.GONE){
@@ -198,13 +198,27 @@ public class PreviewMusicActivity extends BaseActivity {
         EpEditor.exec(epVideo, outputOption,listener);
     }
 
+    private void addText(String in,OnEditorListener listener){
+        String ttf = FileUtil.getCamera2Path()+"heart.ttf";
+        EpVideo epVideo = new EpVideo(in);
+        epVideo.addText(850,1780,88,"white",ttf,"形声");
+
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        out = FileUtil.getCamera2Path()+"deploy"+File.separator+"py_logo_"+timeStamp+".mp4";
+
+        FFmpegEditor.OutputOption outputOption = new FFmpegEditor.OutputOption(out);
+        outputOption.frameRate = 60;
+        outputOption.bitRate = 5*1024*1024;
+        FFmpegEditor.exec(epVideo, outputOption,listener);
+    }
+
     private void gotoDeploy(){
         video.pause();
 
         final Intent intent = new Intent(this,DeployActivity.class);
 
         //move to deploy
-        String result;
+        final String result;
         String deploy = FileUtil.move2Folders(data.get(currentPosition),FileUtil.getCamera2Path()+"deploy"+ File.separator);
         if (deploy!=null&&!deploy.equals("")){
             result = deploy;
@@ -213,19 +227,42 @@ public class PreviewMusicActivity extends BaseActivity {
             result = data.get(currentPosition);
         }
 
-        //add logo in video .
         video.pause();
         loading.setVisibility(View.VISIBLE);
 
         Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
-        LinearInterpolator lin = new LinearInterpolator();
-//        operatingAnim.setInterpolator(lin);
-        operatingAnim.setInterpolator(new BounceInterpolator());
+        operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
         loading.startAnimation(operatingAnim);
 
         removeListeners();
 
 
+        addText(result, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+                //delete the old file
+                File file = new File(result);
+                if (file.delete()){
+                    Log.d(TAG, "addText: delete successful");
+                }
+                intent.putExtra("videoPath",out);
+                startActivity(intent);
+                finish();//not to back...because of this video maybe deleted.
+            }
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: add text failed" );
+            }
+
+            @Override
+            public void onProgress(float v) {
+
+            }
+        });
+
+/*
+//      may be add text is more useful...
         addLogo(result, new OnEditorListener() {
             @Override
             public void onSuccess() {
@@ -243,6 +280,7 @@ public class PreviewMusicActivity extends BaseActivity {
             public void onProgress(float v) {
             }
         });
+*/
 
     }
 

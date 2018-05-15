@@ -12,9 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -340,7 +340,7 @@ public class PreviewActivity extends BaseActivity {
 
             Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
 //            LinearInterpolator lin = new LinearInterpolator();
-            operatingAnim.setInterpolator(new BounceInterpolator());
+            operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
             loading.startAnimation(operatingAnim);
 
 
@@ -435,6 +435,7 @@ public class PreviewActivity extends BaseActivity {
     private  void attachBgm(final List<Music> musics){
         if(musics==null || musics.size()==0) {
             forwardPages();
+            finish();
             return;
         }
         Music temp = musics.remove(0);

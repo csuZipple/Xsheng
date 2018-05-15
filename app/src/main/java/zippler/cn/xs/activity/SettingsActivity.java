@@ -50,7 +50,7 @@ public class SettingsActivity extends BaseActivity {
         if (files.length != 0) {
             for (File file2 : files) {
                 if (!file2.isDirectory()) {
-                    if (FileUtil.isVedioFile(file2.getAbsolutePath())){
+                    if (FileUtil.isVideoFile(file2.getAbsolutePath())){
                         videoCache.add(file2.getAbsolutePath());
                     }
                 }

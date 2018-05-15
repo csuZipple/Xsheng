@@ -16,7 +16,6 @@ import android.widget.VideoView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import zippler.cn.xs.R;
@@ -124,9 +123,9 @@ public class VideoFragment extends Fragment {
         Video temp ;
         String basePath = FileUtil.getCamera2Path()+"deploy"+ File.separator;
         List<String> pathList = FileUtil.traverseFolder(basePath);
-
         assert pathList != null;
-        Collections.reverse(pathList);
+        Log.d(TAG, "initVideo: get local videos size = "+pathList.size());
+//        Collections.reverse(pathList);
         for (String url:pathList) {
             temp = new Video();
             temp.setUrl(url);

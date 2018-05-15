@@ -63,12 +63,10 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         String url = video.getUrl();
         if (url!=null){
             videoView.setVideoPath(url);
-//            ImageFileUtil.setFirstFrame(poster,url);//time waste...
             Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
-//                ImageFileUtil.setFirstFrame(poster,context,Uri.parse(localUrl));//time waste...
                 Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
             }
         }
@@ -78,6 +76,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
             @Override
             public void onClick(View v) {
                 playBtn.setVisibility(View.INVISIBLE);
+                poster.setVisibility(View.GONE);
                 videoView.start();
             }
         });
