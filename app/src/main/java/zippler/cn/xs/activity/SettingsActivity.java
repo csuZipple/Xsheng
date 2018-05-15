@@ -7,6 +7,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,12 @@ public class SettingsActivity extends BaseActivity {
         for (String path:videoCache) {
             size+=new File(path).length();
         }
-        result = (float)size/1024/1024+"";
+        if (size==0){
+            result = "0.0 ";
+        }else{
+            DecimalFormat df = new DecimalFormat("#.00");
+            result = df.format((double)size/1024/1024);
+        }
         return result;
     }
 
@@ -71,9 +77,12 @@ public class SettingsActivity extends BaseActivity {
                     temp.delete();
                 }
             }
+            cacheSize.setText("0.0MB");
+            toastView("成功清理缓存",R.mipmap.correct);
+        }else{
+            toastView("无需清理缓存",R.mipmap.error);
         }
-        cacheSize.setText("0.0MB");
-        toast("已成功清理缓存");
+
     }
 
     @Override
