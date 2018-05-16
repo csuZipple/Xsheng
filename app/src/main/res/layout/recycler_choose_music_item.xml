@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="90dp"
     xmlns:progress="http://schemas.android.com/apk/res-auto"
-    android:background="#f2f2f2"
+    android:background="#ffffff"
     android:orientation="vertical">
 
     <LinearLayout
@@ -18,14 +18,14 @@
         android:paddingStart="18dp"
         android:paddingEnd="18dp"
         android:gravity="center_vertical"
-        android:background="#eeeeee">
+        android:background="#ffffff">
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:background="#eeeeee">
+            android:background="#ffffff">
 
             <ImageView
                 android:id="@+id/music_avatar"
@@ -34,7 +34,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:layout_weight="1"
-                android:src="@mipmap/default_music_avatar"
+                android:src="@mipmap/music_poster"
                 android:contentDescription="@string/app_english" />
             <RelativeLayout
                 android:layout_width="0dp"

@@ -445,6 +445,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         ArrayList<EpVideo> epVideos = new ArrayList<>();
         epVideos.clear();
         for (String temp :paths) {
+            Log.d(TAG, "combinedVideos: current = "+temp);
             epVideos.add(new EpVideo(temp));
         }
         editorListener = new CombinedOnEditorListener(old,isCombined);

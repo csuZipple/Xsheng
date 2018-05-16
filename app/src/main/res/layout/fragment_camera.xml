@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     tools:context="zippler.cn.xs.fragment.CameraFragment"
     android:orientation="vertical"
+    android:background="#ffffff"
     android:gravity="center_horizontal">
 
     <ScrollView

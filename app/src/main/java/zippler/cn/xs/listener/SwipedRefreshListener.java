@@ -20,7 +20,6 @@ public class SwipedRefreshListener implements SwipeRefreshLayout.OnRefreshListen
 
     @Override
     public void onRefresh() {
-        //how to delay 2 seconds?
         new Thread(){
             @Override
             public void run() {

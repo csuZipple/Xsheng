@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +20,7 @@ import java.util.List;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
+import zippler.cn.xs.listener.OnPageChangedListener;
 import zippler.cn.xs.listener.SwipedRefreshListener;
 import zippler.cn.xs.util.FileUtil;
 import zippler.cn.xs.util.ImageFileUtil;
@@ -67,33 +67,10 @@ public class VideoFragment extends Fragment {
 
         PagingScrollHelper helper = new PagingScrollHelper();
         helper.setUpRecycleView(recyclerView);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        helper.setOnPageChangedListener(new OnPageChangedListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                boolean isDown = dy<0;
-                LinearLayoutManager llm = (LinearLayoutManager)recyclerView.getLayoutManager();
-                int nowPos = llm.findFirstVisibleItemPosition();
-                Log.e(TAG, "onScrolled: nowPos:"+nowPos);
-                if (isDown){
-                    nowPos--;
-                }else{
-                    nowPos++;
-                }
-                //set the last view default settings
-                View lastView = llm.findViewByPosition(nowPos);
-                if (lastView!=null){
-                    VideoView videoView = lastView.findViewById(R.id.video_show);
-                    ImageView poster = lastView.findViewById(R.id.poster);
-                    ImageView playBtn = lastView.findViewById(R.id.play);
-                    if (videoView.isPlaying()){
-                        videoView.stopPlayback();//or pause?
-                    }
-                    if (poster.getVisibility()==View.INVISIBLE){
-                        playBtn.setVisibility(View.VISIBLE);
-                        poster.setVisibility(View.VISIBLE);
-                    }
-                }
-
+            public void onChanged(int position) {
+                Log.e(TAG, "onChanged: current page is "+position);
             }
         });
 
@@ -104,6 +81,22 @@ public class VideoFragment extends Fragment {
         initSwipedLayout(view);
         return view;
     }
+
+    private void hide(View lastView){
+        if (lastView!=null){
+            VideoView videoView = lastView.findViewById(R.id.video_show);
+            ImageView poster = lastView.findViewById(R.id.poster);
+            ImageView playBtn = lastView.findViewById(R.id.play);
+            if (videoView.isPlaying()){
+                videoView.stopPlayback();//or pause?
+            }
+            Log.e(TAG, "hide: poster :"+poster.getVisibility()+"");
+
+            playBtn.setVisibility(View.VISIBLE);
+            poster.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     /**
      * init refresh layout
@@ -151,25 +144,6 @@ public class VideoFragment extends Fragment {
         this.swipeRefreshLayout = swipeRefreshLayout;
     }
 
-    public RecyclerView getRecyclerView() {
-        return recyclerView;
-    }
-
-    public void setRecyclerView(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-    }
-
-    public List<Video> getVideos() {
-        return videos;
-    }
-
-    public void setVideos(ArrayList<Video> videos) {
-        this.videos = videos;
-    }
-
-    public Video getDeployedVideo() {
-        return deployedVideo;
-    }
 
     public void setDeployedVideo(Video deployedVideo) {
         this.deployedVideo = deployedVideo;

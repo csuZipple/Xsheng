@@ -73,7 +73,7 @@ public class RecyclerChooseMusicAdapter extends RecyclerView.Adapter<MusicViewHo
                     player.pause();
                     handler.removeCallbacks(runnable);
                 }else{
-                    playBtn.setImageResource(R.mipmap.pause);
+                    playBtn.setImageResource(R.mipmap.pause_dark);
                     player.start();
                     handler.postDelayed(runnable,500);
                 }

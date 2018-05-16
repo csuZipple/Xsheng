@@ -51,6 +51,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         //change child attribute here.
+        Log.e(TAG, "onBindViewHolder: bind video " );
         final Video video = videoList.get(position);
         holder.getName().setText(video.getDesc());
         holder.getTime().setText(video.getDeployed());
@@ -59,24 +60,25 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         final VideoView videoView = holder.getVideoview();
         final ImageView playBtn = holder.getPlay();
 
-        String localUrl = video.getLocalStorageUrl();
+      /*  String localUrl = video.getLocalStorageUrl();
         String url = video.getUrl();
         if (url!=null){
             videoView.setVideoPath(url);
+            Log.e(TAG, "onBindViewHolder: loading thumbnails" );
             Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
                 Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
             }
-        }
+        }*/
 
         //add holder listener here. for example
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playBtn.setVisibility(View.INVISIBLE);
-                poster.setVisibility(View.GONE);
+                poster.setVisibility(View.INVISIBLE);
                 videoView.start();
             }
         });
@@ -84,7 +86,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
             @Override
             public void onClick(View v) {
                 playBtn.setVisibility(View.INVISIBLE);
-                poster.setVisibility(View.GONE);
+                poster.setVisibility(View.INVISIBLE);
                 videoView.start();
             }
         });
@@ -102,7 +104,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(TAG, "onTouch: video on touch");
-                if (event.getAction()==MotionEvent.ACTION_DOWN){
+                if (event.getPointerCount()==1&&event.getAction()==MotionEvent.ACTION_UP){
                     if (videoView.isPlaying()){
                         playBtn.setVisibility(View.VISIBLE);
                         videoView.pause();
@@ -123,6 +125,27 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
             }
         });
 
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
+        Log.e(TAG, "onViewAttachedToWindow: " );
+        final Video video = videoList.get(holder.getAdapterPosition());
+        final ImageView poster = holder.getPoster();
+        final VideoView videoView = holder.getVideoview();
+        poster.setVisibility(View.VISIBLE);
+        String localUrl = video.getLocalStorageUrl();
+        String url = video.getUrl();
+        if (url!=null){
+            videoView.setVideoPath(url);
+            Log.e(TAG, "onBindViewHolder: loading thumbnails" );
+            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
+        }else{
+            if (localUrl!=null){
+                videoView.setVideoURI(Uri.parse(localUrl));
+                Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
+            }
+        }
     }
 
     @Override

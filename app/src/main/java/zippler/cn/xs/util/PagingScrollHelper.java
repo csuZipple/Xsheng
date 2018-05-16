@@ -119,7 +119,9 @@ public class PagingScrollHelper {
                 return false;
             }
             //获取开始滚动时所在页面的index
+            Log.e(TAG, "onFling: 开始计算当前页面p时的startY:"+startY);
             int p = getStartPageIndex();
+            Log.e(TAG, "onFling: 开始滚动时的index="+p );
 
             //记录滚动开始和结束的位置
             int endPoint = 0;
@@ -136,6 +138,7 @@ public class PagingScrollHelper {
                 }
                 //根据不同的速度判断需要滚动的方向
                 //注意，此处有一个技巧，就是当速度为0的时候就是滚动开始的页面，即实现页面复位
+                Log.e(TAG, "onFling: 处理后的index="+p );
                 endPoint = p * mRecyclerView.getHeight();
 
             } else {
@@ -181,6 +184,13 @@ public class PagingScrollHelper {
                         if (null != mOnPageChangeListener) {
                             mOnPageChangeListener.onPageChange(getPageIndex());
                         }
+                        //滚动完成
+                        if (pageChangedListener!=null){
+                            if (currentPage!=oldPage){
+                                pageChangedListener.onChanged(currentPage);
+                            }
+                        }
+                        startY = offsetY;
                     }
                 });
             } else {
@@ -190,12 +200,6 @@ public class PagingScrollHelper {
 
             mAnimator.start();
 
-            //滚动完成
-            if (pageChangedListener!=null){
-                if (currentPage!=oldPage){
-                    pageChangedListener.onChanged(currentPage);
-                   }
-            }
             return true;
         }
     }
@@ -204,11 +208,8 @@ public class PagingScrollHelper {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             //newState==0表示滚动停止，此时需要处理回滚
-            Log.d(TAG, "onScrollStateChanged: newState"+newState);
+            Log.d(TAG, "onScrollStateChanged: newState="+newState);
             if (newState == 0 && mOrientation != ORIENTATION.NULL) {
-
-
-
                 boolean move;
                 int vX = 0, vY = 0;
                 if (mOrientation == ORIENTATION.VERTICAL) {
@@ -216,11 +217,9 @@ public class PagingScrollHelper {
                     //如果滑动的距离超过屏幕的一半表示需要滑动到下一页
                     move = absY > recyclerView.getHeight() / 2;
                     vY = 0;
-
                     if (move) {
                         vY = offsetY - startY < 0 ? -1000 : 1000;
                     }
-
                 } else {
                     int absX = Math.abs(offsetX - startX);
                     move = absX > recyclerView.getWidth() / 2;
@@ -229,9 +228,7 @@ public class PagingScrollHelper {
                     }
 
                 }
-
                 mOnFlingListener.onFling(vX, vY);
-
             }
 
         }
@@ -239,6 +236,7 @@ public class PagingScrollHelper {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             //滚动结束记录滚动的偏移量
+            Log.e(TAG, "onScrolled: 滚动后 offsetY:"+offsetY);
             offsetY += dy;
             offsetX += dx;
         }
@@ -253,6 +251,7 @@ public class PagingScrollHelper {
         public boolean onTouch(View v, MotionEvent event) {
             //手指按下的时候记录开始滚动的坐标
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Log.e(TAG, "onTouch: 记录的offsetY,赋值给startY:"+offsetY );
                 startY = offsetY;
                 startX = offsetX;
             }
