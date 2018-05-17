@@ -75,7 +75,7 @@ public class VideoFragment extends Fragment {
         });
 
         initVideo();
-        RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos);
+        RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos,linerLayoutManager);
         recyclerView.setAdapter(videoAdapter);
 
         initSwipedLayout(view);

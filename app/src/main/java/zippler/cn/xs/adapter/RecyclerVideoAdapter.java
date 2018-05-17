@@ -1,6 +1,7 @@
 package zippler.cn.xs.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -27,6 +29,7 @@ import zippler.cn.xs.component.CommentPopView;
 import zippler.cn.xs.entity.Comment;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
+import zippler.cn.xs.util.LinerLayoutManager;
 
 
 /**
@@ -36,13 +39,18 @@ import zippler.cn.xs.holder.VideoViewHolder;
  */
 public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder>  {
 
+    private LinerLayoutManager linearLayout;
     private Context context;
     private List<Video> videoList;
     private String TAG=this.getClass().getSimpleName();
 
-    public RecyclerVideoAdapter(Context context, List<Video> videoList) {
+    boolean isClicked = false;
+
+
+    public RecyclerVideoAdapter(Context context, List<Video> videoList, LinerLayoutManager linerLayoutManager) {
         this.context = context;
         this.videoList = videoList;
+        this.linearLayout = linerLayoutManager;
     }
 
     @NonNull
@@ -54,7 +62,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final VideoViewHolder holder, int position) {
         //change child attribute here.
         Log.e(TAG, "onBindViewHolder: bind video " );
         final Video video = videoList.get(position);
@@ -65,6 +73,9 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         final VideoView videoView = holder.getVideoview();
         final ImageView playBtn = holder.getPlay();
         final RelativeLayout root = holder.getVideoRoot();
+        final ImageView love = holder.getLove();
+
+        final String url = videoList.get(position).getUrl()==null?videoList.get(position).getLocalStorageUrl():videoList.get(position).getUrl();
 
         holder.getComment().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,6 +84,30 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                     showComment(root);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
+                }
+            }
+        });
+
+        holder.getRedeploy().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent textIntent = new Intent(Intent.ACTION_SEND);
+                textIntent.setType("text/plain");
+                View view = linearLayout.findViewByPosition(holder.getAdapterPosition());
+                TextView title = view.findViewById(R.id.video_name);
+                textIntent.putExtra(Intent.EXTRA_TEXT, title.getText()+"\n视频:"+url+"\n\n来自形声. \n形声，以形作声.");
+                context.startActivity(Intent.createChooser(textIntent, "来自形声的分享"));
+            }
+        });
+
+        love.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isClicked){
+                    love.setImageResource(R.mipmap.love_white);
+                }else{
+                    love.setImageResource(R.mipmap.love_red);
+
                 }
             }
         });
