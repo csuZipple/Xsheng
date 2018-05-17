@@ -3,6 +3,7 @@ package zippler.cn.xs.holder;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -21,6 +22,10 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     private ImageView play;
     private TextView length;
     private VideoView videoview;
+    private ImageView comment;
+    private ImageView redeploy;
+    private ImageView love;
+    private RelativeLayout videoRoot;
 
     public VideoViewHolder(View itemView) {
         super(itemView);
@@ -31,6 +36,10 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         length = itemView.findViewById(R.id.length);
         play = itemView.findViewById(R.id.play);
         videoview = itemView.findViewById(R.id.video_show);
+        comment = itemView.findViewById(R.id.comment);
+        redeploy = itemView.findViewById(R.id.redeploy);
+        love = itemView.findViewById(R.id.love);
+        videoRoot = itemView.findViewById(R.id.video_root);
     }
 
     public ImageView getPoster() {
@@ -87,5 +96,37 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
 
     public void setVideoview(VideoView videoview) {
         this.videoview = videoview;
+    }
+
+    public ImageView getComment() {
+        return comment;
+    }
+
+    public void setComment(ImageView comment) {
+        this.comment = comment;
+    }
+
+    public ImageView getRedeploy() {
+        return redeploy;
+    }
+
+    public void setRedeploy(ImageView redeploy) {
+        this.redeploy = redeploy;
+    }
+
+    public ImageView getLove() {
+        return love;
+    }
+
+    public void setLove(ImageView love) {
+        this.love = love;
+    }
+
+    public RelativeLayout getVideoRoot() {
+        return videoRoot;
+    }
+
+    public void setVideoRoot(RelativeLayout videoRoot) {
+        this.videoRoot = videoRoot;
     }
 }

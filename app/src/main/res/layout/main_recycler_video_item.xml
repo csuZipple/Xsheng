@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/video_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerInParent="true">
@@ -118,5 +119,47 @@
             android:layout_centerInParent="true"
             android:contentDescription="@string/app_chinese" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="10dp">
+        <ImageView
+            android:id="@+id/love"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="10dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@mipmap/love_white"
+            android:contentDescription="@string/default_length"/>
+
+        <ImageView
+            android:id="@+id/comment"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@mipmap/quote"
+            android:contentDescription="@string/default_length"/>
+
+        <ImageView
+            android:id="@+id/redeploy"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="10dp"
+
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@mipmap/redeploy"
+            android:contentDescription="@string/default_length"/>
+
+
+    </LinearLayout>
 
 </RelativeLayout>

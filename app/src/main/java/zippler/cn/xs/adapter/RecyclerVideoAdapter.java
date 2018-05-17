@@ -6,20 +6,25 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import zippler.cn.xs.R;
+import zippler.cn.xs.component.CommentPopView;
+import zippler.cn.xs.entity.Comment;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
 
@@ -59,6 +64,18 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         final ImageView poster = holder.getPoster();
         final VideoView videoView = holder.getVideoview();
         final ImageView playBtn = holder.getPlay();
+        final RelativeLayout root = holder.getVideoRoot();
+
+        holder.getComment().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    showComment(root);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         //add holder listener here. for example
         playBtn.setOnClickListener(new View.OnClickListener() {
@@ -117,10 +134,12 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
 
     @Override
     public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
-        Log.e(TAG, "onViewAttachedToWindow: " );
+        Log.e(TAG, "onViewAttachedToWindow: ");
         final Video video = videoList.get(holder.getAdapterPosition());
         final ImageView poster = holder.getPoster();
         final VideoView videoView = holder.getVideoview();
+        final ImageView playBtn = holder.getPlay();
+
         poster.setVisibility(View.VISIBLE);
         String localUrl = video.getLocalStorageUrl();
         String url = video.getUrl();
@@ -131,13 +150,36 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
+                playBtn.setVisibility(View.VISIBLE);
                 Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
             }
         }
     }
-
     @Override
     public int getItemCount() {
         return videoList.size();
+    }
+
+    public void showComment(View v) throws CloneNotSupportedException {
+
+        List<Comment> comments = new ArrayList<>();
+
+        Comment comment = new Comment();
+        comment.setContent("我听见脚步声，意料的软皮鞋跟！");
+        comment.setTime("1小时前");
+        comment.setName("zipple");
+        comment.setPic(R.drawable.avatar);
+
+        comments.add(comment);
+        comment = new Comment();
+        comment.setContent("哥练的胸肌，你要不要靠！");
+        comment.setTime("2小时前");
+        comment.setName("icelee");
+        comment.setPic(R.drawable.pikachu);
+        comments.add(comment);
+
+
+        CommentPopView commentPopView = new CommentPopView(context,comments);
+        commentPopView.showAtLocation(v, Gravity.BOTTOM,0,0);
     }
 }

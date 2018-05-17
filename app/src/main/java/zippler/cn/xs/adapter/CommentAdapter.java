@@ -36,7 +36,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = comments.get(position);
-        holder.tvName.setText("周杰伦");
+        holder.tvName.setText(comment.getName());
+        holder.ivPic.setImageResource(comment.getPic());
         holder.tvTime.setText(comment.getTime());
         holder.tvLikeCount.setText(new Random().nextInt(3000)+"");
         holder.tvComment.setText(comment.getContent());

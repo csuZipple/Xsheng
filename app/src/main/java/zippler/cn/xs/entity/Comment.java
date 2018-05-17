@@ -7,6 +7,8 @@ package zippler.cn.xs.entity;
 public class Comment implements Cloneable {
     private int id;
     private int userId;
+    private int pic;
+    private String name;
     private String content;
     private String time;
 
@@ -43,4 +45,19 @@ public class Comment implements Cloneable {
     }
 
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPic() {
+        return pic;
+    }
+
+    public void setPic(int pic) {
+        this.pic = pic;
+    }
 }

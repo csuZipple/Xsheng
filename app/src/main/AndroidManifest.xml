@@ -18,6 +18,10 @@
         <activity
             android:name=".activity.SplashActivity"
             android:theme="@style/splashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.BaseActivity" />
@@ -29,13 +33,9 @@
         <activity android:name=".activity.PreviewFullVideoActivity" />
         <activity android:name=".activity.SettingsActivity" />
         <activity android:name=".activity.UserInfoActivity" />
-        <activity android:name=".activity.AboutActivity"></activity>
+        <activity android:name=".activity.AboutActivity"/>
         <activity android:name=".activity.CommentActivity"  android:windowSoftInputMode="adjustPan|stateHidden" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

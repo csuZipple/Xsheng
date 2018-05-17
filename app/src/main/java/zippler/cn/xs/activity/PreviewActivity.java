@@ -19,16 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -240,9 +233,11 @@ public class PreviewActivity extends BaseActivity {
                 break;
             case R.id.delete_btn:
                 deleteCurrentVideo();
+                toastView("删除成功",R.mipmap.correct);
                 Intent intent = new Intent(this,RecorderActivity.class);
                 startActivity(intent);
                 finish();
+                break;
             default:
                 toast("default clicked");
                 break;
