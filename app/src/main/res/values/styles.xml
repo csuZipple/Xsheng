@@ -29,4 +29,9 @@
         <item name="android:windowFullscreen">true</item>
         <!-- <item name="android:windowIsTranslucent">true</item> -->
     </style>
+
+    <style name="record_pop_anim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/pop_in_anim</item>
+        <item name="android:windowExitAnimation">@anim/pop_exit_anim</item>
+    </style>
 </resources>

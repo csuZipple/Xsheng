@@ -4,7 +4,7 @@ package zippler.cn.xs.entity;
  * Created by Zipple on 2018/5/14.
  * about words
  */
-public class Comment {
+public class Comment implements Cloneable {
     private int id;
     private int userId;
     private String content;
@@ -41,4 +41,6 @@ public class Comment {
     public void setTime(String time) {
         this.time = time;
     }
+
+
 }
