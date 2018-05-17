@@ -60,19 +60,6 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         final VideoView videoView = holder.getVideoview();
         final ImageView playBtn = holder.getPlay();
 
-      /*  String localUrl = video.getLocalStorageUrl();
-        String url = video.getUrl();
-        if (url!=null){
-            videoView.setVideoPath(url);
-            Log.e(TAG, "onBindViewHolder: loading thumbnails" );
-            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
-        }else{
-            if (localUrl!=null){
-                videoView.setVideoURI(Uri.parse(localUrl));
-                Glide.with(context).load(Uri.parse(localUrl)).thumbnail(1.0f).into(poster);
-            }
-        }*/
-
         //add holder listener here. for example
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +86,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                 return true;
             }
         });
+        //how to solve the black ground problem..?
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
             @Override
