@@ -47,7 +47,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        //在此添加控件点击事件监听事件
     }
 
     protected void toastView(String msg,int drawable){

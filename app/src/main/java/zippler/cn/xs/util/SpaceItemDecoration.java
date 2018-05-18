@@ -43,7 +43,6 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration{
             }
 
         } else {
-            //最后一项需要right
             if (parent.getChildAdapterPosition(view) == layoutManager.getItemCount() - 1) {
                 outRect.right = leftRight;
             }

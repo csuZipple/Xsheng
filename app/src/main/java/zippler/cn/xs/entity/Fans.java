@@ -2,7 +2,6 @@ package zippler.cn.xs.entity;
 
 /**
  * Created by zipple on 2018/3/5.
- * 粉丝
  */
 
 public class Fans extends User {

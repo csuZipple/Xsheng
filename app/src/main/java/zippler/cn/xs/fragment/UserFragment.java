@@ -45,7 +45,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         more.setOnClickListener(this);
         username.setOnClickListener(this);
         settings.setOnClickListener(this);
-        //为两者设置点击事件
 
         tabLayout = view.findViewById(R.id.me_tab_layout);
         viewPager = view.findViewById(R.id.me_view_pager);
@@ -60,7 +59,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onPageSelected(int position) {
-                tabLayout.getTabAt(position).select();//选择相应的页面
+                tabLayout.getTabAt(position).select();
             }
 
             @Override

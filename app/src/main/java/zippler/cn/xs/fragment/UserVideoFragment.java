@@ -39,7 +39,7 @@ public class UserVideoFragment extends Fragment {
         recyclerView =  view.findViewById(R.id.my_video_recycler_view);
         imageView =  view.findViewById(R.id.none_img_view);
 
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);//垂直排列
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
 
         //how to get lists?

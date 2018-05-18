@@ -77,13 +77,9 @@ public class PagingScrollHelper {
             throw new IllegalArgumentException("recycleView must be not null");
         }
         mRecyclerView = recycleView;
-        //处理滑动
         recycleView.setOnFlingListener(mOnFlingListener);
-        //设置滚动监听，记录滚动的状态，和总的偏移量
         recycleView.addOnScrollListener(mOnScrollListener);
-        //记录滚动开始的位置
         recycleView.setOnTouchListener(mOnTouchListener);
-        //获取滚动的方向
         updateLayoutManger();
     }
 
@@ -118,16 +114,13 @@ public class PagingScrollHelper {
             if (mOrientation == ORIENTATION.NULL) {
                 return false;
             }
-            //获取开始滚动时所在页面的index
             Log.e(TAG, "onFling: 开始计算当前页面p时的startY:"+startY);
             int p = getStartPageIndex();
             Log.e(TAG, "onFling: 开始滚动时的index="+p );
 
-            //记录滚动开始和结束的位置
             int endPoint = 0;
             int startPoint = 0;
 
-            //如果是垂直方向
             if (mOrientation == ORIENTATION.VERTICAL) {
                 startPoint = offsetY;
 
@@ -136,8 +129,7 @@ public class PagingScrollHelper {
                 } else if (velocityY > 0) {
                     p++;
                 }
-                //根据不同的速度判断需要滚动的方向
-                //注意，此处有一个技巧，就是当速度为0的时候就是滚动开始的页面，即实现页面复位
+
                 Log.e(TAG, "onFling: 处理后的index="+p );
                 endPoint = p * mRecyclerView.getHeight();
 
@@ -157,7 +149,6 @@ public class PagingScrollHelper {
                 endPoint = 0;
             }
 
-            //使用动画处理滚动
             if (mAnimator == null) {
                 mAnimator = new ValueAnimator().ofInt(startPoint, endPoint);
 
@@ -169,7 +160,6 @@ public class PagingScrollHelper {
 
                         if (mOrientation == ORIENTATION.VERTICAL) {
                             int dy = nowPoint - offsetY;
-                            //这里通过RecyclerView的scrollBy方法实现滚动。
                             mRecyclerView.scrollBy(0, dy);
                         } else {
                             int dx = nowPoint - offsetX;
@@ -180,11 +170,9 @@ public class PagingScrollHelper {
                 mAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        //回调监听
                         if (null != mOnPageChangeListener) {
                             mOnPageChangeListener.onPageChange(getPageIndex());
                         }
-                        //滚动完成
                         if (pageChangedListener!=null){
                             if (currentPage!=oldPage){
                                 pageChangedListener.onChanged(currentPage);
@@ -207,14 +195,12 @@ public class PagingScrollHelper {
     public class MyOnScrollListener extends RecyclerView.OnScrollListener {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            //newState==0表示滚动停止，此时需要处理回滚
             Log.d(TAG, "onScrollStateChanged: newState="+newState);
             if (newState == 0 && mOrientation != ORIENTATION.NULL) {
                 boolean move;
                 int vX = 0, vY = 0;
                 if (mOrientation == ORIENTATION.VERTICAL) {
                     int absY = Math.abs(offsetY - startY);
-                    //如果滑动的距离超过屏幕的一半表示需要滑动到下一页
                     move = absY > recyclerView.getHeight() / 2;
                     vY = 0;
                     if (move) {
@@ -235,7 +221,6 @@ public class PagingScrollHelper {
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            //滚动结束记录滚动的偏移量
             Log.e(TAG, "onScrolled: 滚动后 offsetY:"+offsetY);
             offsetY += dy;
             offsetX += dx;
@@ -249,7 +234,6 @@ public class PagingScrollHelper {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            //手指按下的时候记录开始滚动的坐标
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Log.e(TAG, "onTouch: 记录的offsetY,赋值给startY:"+offsetY );
                 startY = offsetY;

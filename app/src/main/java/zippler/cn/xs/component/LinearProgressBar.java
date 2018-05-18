@@ -118,54 +118,36 @@ public class LinearProgressBar extends ProgressBar {
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // 判断是否到达右末端
         boolean isFinishRight = false;
         canvas.save();
-        // 获取进度
         int progress = getProgress();
-        // 0~1 速率 *1.0f先 不然会都等于0
         float rate = progress * 1.0f / getMax();
-        // 不断累加
         float start = (mRealWidth - textWidth - paddingLT * 2) * rate;
         String text = progress + "%";
         measureText(text);
-        // 右边长度变化
         mRight = (int) (start + textWidth + paddingLT * 2 + getPaddingLeft());
-        // 左边长度变化
         mLeft = (int) (start + getPaddingLeft());
-        // text 加上两个gap的实际宽度
         mRealText = textWidth + paddingLT * 2;
-        // 线的实际高度
-//        mLineHeight = -textHeight / 2 + getPaddingTop();
         mLineHeight = -textHeight / 2;
-        // 字体的高度
-//        mTextHeight = -textHeight + getPaddingTop();
         mTextHeight = -textHeight;
 
-        // 判断未画的线 是不是到达 到达就把最变量start值 赋给最大值
         if (start + textWidth + paddingLT * 2 > mRealWidth) {
             start = mRealWidth;
-            // 控制是否继续画
             isFinishRight = true;
         }
         if (!isFinishRight) {
-            // 画右边线条
             drawRight(canvas);
 
         }
-        // 标志 是否大于等于实际宽度
         float endX = start + textWidth + paddingLT * 2;
         if (endX >= mRealWidth) {
-            // left 的最点位子，不再继续画
             start = mRealWidth - textWidth - paddingLT * 2;
             drawLeft(canvas, start);
 
         } else {
-            // 不满足前面条件 则不断加上去
             drawLeft(canvas, start);
         }
 
-        // 画进度  要判断endX也行  有点麻烦了
         drawText(canvas, text);
 
         canvas.restore();
@@ -173,7 +155,6 @@ public class LinearProgressBar extends ProgressBar {
 
     /**
      * @param canvas
-     *            左侧进度
      */
     private void drawRight(Canvas canvas) {
 
@@ -199,7 +180,6 @@ public class LinearProgressBar extends ProgressBar {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 
         super.onSizeChanged(w, h, oldw, oldh);
-        // 实际长度
         mRealWidth = w - getPaddingLeft() - getPaddingRight();
 
     }
@@ -233,7 +213,6 @@ public class LinearProgressBar extends ProgressBar {
             "#ff6600",
             "#ffa500"
     };
-    //改变画笔颜色
     public void updatePaintColors(){
         Random random=new Random();
 

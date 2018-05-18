@@ -18,7 +18,6 @@ import static android.media.MediaMetadataRetriever.OPTION_CLOSEST;
  */
 public class ImageFileUtil {
     /**
-     * 从sd卡获取图片资源
      * @return
      */
     public static List<String> getImagesInPath(String filePath) {
@@ -40,7 +39,6 @@ public class ImageFileUtil {
      */
     private static boolean checkIsImageFile(String fName) {
         boolean isImageFile = false;
-        // 获取扩展名
         String FileEnd = fName.substring(fName.lastIndexOf(".") + 1,
                 fName.length()).toLowerCase();
         isImageFile = FileEnd.equals("jpg") || FileEnd.equals("png") || FileEnd.equals("gif")

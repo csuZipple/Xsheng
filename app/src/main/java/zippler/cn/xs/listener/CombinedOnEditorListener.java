@@ -47,7 +47,6 @@ public class CombinedOnEditorListener implements OnEditorListener {
 
     @Override
     public void onProgress(float progress) {
-        //这里获取处理进度
         Log.d(TAG, "onProgress: combined progress : " + progress);
     }
 
