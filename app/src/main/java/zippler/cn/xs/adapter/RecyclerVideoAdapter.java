@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import zippler.cn.xs.entity.Comment;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
 import zippler.cn.xs.util.LinerLayoutManager;
+import zippler.cn.xs.util.PxUtil;
 
 
 /**
@@ -107,7 +109,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                     love.setImageResource(R.mipmap.love_white);
                 }else{
                     love.setImageResource(R.mipmap.love_red);
-
+                    toastView("收藏成功",R.mipmap.correct);
                 }
             }
         });
@@ -216,5 +218,25 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
 
         CommentPopView commentPopView = new CommentPopView(context,comments);
         commentPopView.showAtLocation(v, Gravity.BOTTOM,0,0);
+    }
+
+    protected void toastView(String msg,int drawable){
+        Toast customToast = new Toast(context.getApplicationContext());
+        View customView = LayoutInflater.from(context).inflate(R.layout.toast_img,null);
+
+        LinearLayout relativeLayout = customView.findViewById(R.id.toast_linear);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) PxUtil.dpToPx(context, 130), (int)PxUtil.dpToPx(context, 130));
+        relativeLayout.setLayoutParams(layoutParams);
+
+
+        ImageView img = customView.findViewById(R.id.img_correct);
+        TextView tv = customView.findViewById(R.id.tips_right);
+        img.setBackgroundResource(drawable);
+        tv.setText(msg);
+        customToast.setView(customView);
+        customToast.setDuration(Toast.LENGTH_SHORT);
+        customToast.setGravity(Gravity.CENTER,0,0);
+        customToast.show();
     }
 }

@@ -20,6 +20,7 @@
             android:theme="@style/splashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -32,11 +33,14 @@
         <activity android:name=".activity.PreviewMusicActivity" />
         <activity android:name=".activity.PreviewFullVideoActivity" />
         <activity android:name=".activity.SettingsActivity" />
-        <activity android:name=".activity.UserInfoActivity" />
-        <activity android:name=".activity.AboutActivity"/>
-        <activity android:name=".activity.CommentActivity"  android:windowSoftInputMode="adjustPan|stateHidden" >
 
-        </activity>
+        <activity android:name=".activity.UserInfoActivity" />
+        <activity android:name=".activity.AboutActivity" />
+        <activity android:name=".activity.GuideRecorderActivity" />
+        <activity
+            android:name=".activity.CommentActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+        <activity android:name=".activity.MusicChooseActivity"/>
     </application>
 
 </manifest>

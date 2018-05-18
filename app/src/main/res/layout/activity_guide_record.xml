@@ -5,16 +5,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="zippler.cn.xs.activity.RecorderActivity">
+    tools:context="zippler.cn.xs.activity.GuideRecorderActivity">
 
     <TextureView
-        android:id="@+id/preview"
+        android:id="@+id/preview_c"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
     <ProgressBar
-        android:id="@+id/record_line_progress"
+        android:id="@+id/record_line_progress_c"
         android:layout_width="330dp"
         android:layout_height="2dp"
         style="?android:attr/progressBarStyleHorizontal"
@@ -39,7 +39,7 @@
             android:contentDescription="@string/app_english" />-->
 
         <TextView
-            android:id="@+id/change_mode"
+            android:id="@+id/change_mode_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -52,7 +52,7 @@
             tools:ignore="RelativeOverlap" />
 
         <ImageView
-            android:id="@+id/exposure"
+            android:id="@+id/exposure_c"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_centerInParent="true"
@@ -60,18 +60,20 @@
             android:contentDescription="@string/app_english"/>
 
         <ImageView
-            android:id="@+id/camera_id"
+            android:id="@+id/camera_id_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:layout_centerVertical="true"
-            android:layout_alignStart="@id/exposure"
-            android:layout_marginStart="65dp"
-            android:src="@mipmap/fresh"
-            android:contentDescription="@string/app_english"/>
+
+            android:layout_marginStart="24dp"
+            android:layout_toEndOf="@+id/exposure_c"
+            android:contentDescription="@string/app_english"
+            android:src="@mipmap/fresh" />
 
 
         <TextView
-            android:id="@+id/next_step"
+            android:id="@+id/next_step_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -85,41 +87,55 @@
     </RelativeLayout>
 
 
-    <ProgressBar
-        android:id="@+id/record_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginBottom="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:indeterminateDrawable="@drawable/progressbar"
-        android:max="100"
-        android:progress="0"
-        android:visibility="invisible" />
 
-   <ImageView
-       android:id="@+id/record_btn"
-       android:layout_width="70dp"
-       android:layout_height="70dp"
-       android:layout_marginBottom="20dp"
-       android:adjustViewBounds="true"
-       android:scaleType="fitXY"
-       android:layout_alignParentBottom="true"
-       android:layout_centerHorizontal="true"
-       android:src="@mipmap/record"
-       android:contentDescription="@string/app_english"/>
 
-    <ImageView
-        android:id="@+id/pause_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="35dp"
-        android:layout_marginEnd="35dp"
-        android:src="@mipmap/pause"
-        android:contentDescription="@string/app_english"/>
+        android:layout_marginTop="100dp">
+
+
+        <ProgressBar
+            android:id="@+id/record_progress_c"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginBottom="20dp"
+            android:layout_centerInParent="true"
+            android:indeterminateDrawable="@drawable/progressbar"
+            android:max="100"
+            android:progress="0"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/record_btn_c"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginBottom="20dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:layout_centerInParent="true"
+
+            android:src="@mipmap/record"
+            android:contentDescription="@string/app_english"/>
+
+        <ImageView
+            android:id="@+id/pause_btn_c"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="35dp"
+            android:layout_marginEnd="35dp"
+            android:src="@mipmap/pause"
+            android:contentDescription="@string/app_english"/>
+
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

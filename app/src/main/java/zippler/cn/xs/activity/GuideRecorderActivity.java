@@ -32,7 +32,7 @@ import zippler.cn.xs.listener.CombinedOnEditorListener;
 import zippler.cn.xs.util.FFmpegEditor;
 import zippler.cn.xs.util.FileUtil;
 
-public class RecorderActivity extends BaseActivity implements TextureView.SurfaceTextureListener{
+public class GuideRecorderActivity extends BaseActivity implements TextureView.SurfaceTextureListener{
 
     //views
     private TextureView preview;
@@ -45,6 +45,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private ProgressBar record_circle_progress;
     private ProgressBar record_line_progress;
     private ImageView pauseBtn;
+
 
     private SurfaceTexture surface;
 
@@ -76,11 +77,15 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     private int progress = -1;
     private boolean isCombined = false;//combined video progress
 
+    private String musicPath;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record);
-
+        setContentView(R.layout.activity_guide_record);
+        musicPath = getIntent().getStringExtra("music");
+        Log.e(TAG, "onCreate: music path = "+musicPath);
 
         initViews();
         registerListeners();
@@ -89,16 +94,16 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     }
 
     private void initViews(){
-        preview = findViewById(R.id.preview);
+        preview = findViewById(R.id.preview_c);
 //        back = findViewById(R.id.back);
-        changeMode = findViewById(R.id.change_mode);
-        exposure = findViewById(R.id.exposure);
-        reverse = findViewById(R.id.camera_id);
-        recordBtn = findViewById(R.id.record_btn);
-        nextStep = findViewById(R.id.next_step);
-        record_circle_progress = findViewById(R.id.record_progress);
-        record_line_progress = findViewById(R.id.record_line_progress);
-        pauseBtn = findViewById(R.id.pause_btn);
+        changeMode = findViewById(R.id.change_mode_c);
+        exposure = findViewById(R.id.exposure_c);
+        reverse = findViewById(R.id.camera_id_c);
+        recordBtn = findViewById(R.id.record_btn_c);
+        nextStep = findViewById(R.id.next_step_c);
+        record_circle_progress = findViewById(R.id.record_progress_c);
+        record_line_progress = findViewById(R.id.record_line_progress_c);
+        pauseBtn = findViewById(R.id.pause_btn_c);
     }
 
     private void registerListeners(){
@@ -131,29 +136,29 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.change_mode:
+            case R.id.change_mode_c:
                 //change record type.
                 Intent intent = new Intent(this,MusicChooseActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.exposure:
+            case R.id.exposure_c:
                 switchFlash();
                 break;
-            case R.id.camera_id:
+            case R.id.camera_id_c:
                 switchCamera();
                 break;
-            case R.id.record_btn:
+            case R.id.record_btn_c:
                 nextStep.setOnClickListener(this);
                 nextStep.setBackgroundResource(R.drawable.pink_background);
                 startRecord();
                 break;
-            case R.id.next_step:
+            case R.id.next_step_c:
                 if (isRecordOn){ //oom
                     stop();
                 }
                 gotoPreview();
                 break;
-            case R.id.pause_btn:
+            case R.id.pause_btn_c:
                 //waiting for combine video
                 pause();
                 break;
@@ -184,6 +189,11 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**
@@ -341,6 +351,9 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         playMusic(R.raw.di);
         isRecordOn = true;//fixed camera unlock failed
         reverse.setVisibility(View.GONE);//maybe invisible
+
+
+
         //save video
         String root = FileUtil.getCamera2Path();
         FileUtil.createSavePath(root);
@@ -369,6 +382,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
         recordBtn.setImageResource(R.mipmap.record);
         reverse.setVisibility(View.VISIBLE);
 
+
         camera.lock();
         mediaRecorder.stop();
         mediaRecorder.release();
@@ -391,7 +405,7 @@ public class RecorderActivity extends BaseActivity implements TextureView.Surfac
                     isCombined = editorListener.isFinished();
                     if (isCombined){
                         dialog.dismiss();
-                        Intent intent = new Intent(RecorderActivity.this,PreviewActivity.class);
+                        Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
                         intent.putExtra("videoPath",combinedPath);
                         startActivity(intent);
                     }else{
