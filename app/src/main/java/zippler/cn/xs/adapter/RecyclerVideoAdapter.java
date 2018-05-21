@@ -2,8 +2,13 @@ package zippler.cn.xs.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,8 +26,8 @@ import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import zippler.cn.xs.R;
@@ -181,9 +186,9 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         String localUrl = video.getLocalStorageUrl();
         String url = video.getUrl();
         if (url!=null){
-            videoView.setVideoPath(url);
-            Log.e(TAG, "onBindViewHolder: loading thumbnails" );
-            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
+            videoView.setVideoURI(Uri.parse(url));//IOException??
+//            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
+            Glide.with(context).load(url).thumbnail(1.0f).error( R.drawable.n ).into(poster);//glide行不通
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
@@ -238,5 +243,34 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         customToast.setDuration(Toast.LENGTH_SHORT);
         customToast.setGravity(Gravity.CENTER,0,0);
         customToast.show();
+    }
+
+    private Bitmap createVideoThumbnail(String url, int width, int height) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        int kind = MediaStore.Video.Thumbnails.MINI_KIND;
+        try {
+            if (Build.VERSION.SDK_INT >= 14) {
+                retriever.setDataSource(url, new HashMap<String, String>());
+            } else {
+                retriever.setDataSource(url);
+            }
+            bitmap = retriever.getFrameAtTime();
+        } catch (IllegalArgumentException ex) {
+            // Assume this is a corrupt video file
+        } catch (RuntimeException ex) {
+            // Assume this is a corrupt video file.
+        } finally {
+            try {
+                retriever.release();
+            } catch (RuntimeException ex) {
+                // Ignore failures while cleaning up.
+            }
+        }
+        if (kind == MediaStore.Images.Thumbnails.MICRO_KIND && bitmap != null) {
+            bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
+                    ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        }
+        return bitmap;
     }
 }

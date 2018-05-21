@@ -146,7 +146,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="80dp"
         app:barHeight="0dp"
-        app:waveColor="#7eaeaeae"
+        app:waveColor="@color/colorAccent"
         app:waveInterval="5dp"
         app:waveMinHeight="0dp"
         app:waveNumber="33"

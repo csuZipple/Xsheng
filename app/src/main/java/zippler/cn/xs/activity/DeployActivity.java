@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import java.sql.Timestamp;
-
 import zippler.cn.xs.R;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.util.ImageFileUtil;
@@ -94,7 +92,7 @@ public class DeployActivity extends BaseActivity {
                     Video video = new Video();
                     video.setName("default username..");
                     video.setDesc(desc.getText().toString());
-                    video.setDeployed(new Timestamp(System.currentTimeMillis()));
+                    video.setDeployed("");
                     video.setLength((int) duration);
                     video.setUrl(path);
                     intent.putExtra("video",video);

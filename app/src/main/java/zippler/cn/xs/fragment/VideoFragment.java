@@ -13,17 +13,24 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.VideoView;
 
-import java.io.File;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
+import zippler.cn.xs.gson.VideoGson;
 import zippler.cn.xs.listener.OnPageChangedListener;
 import zippler.cn.xs.listener.SwipedRefreshListener;
-import zippler.cn.xs.util.FileUtil;
-import zippler.cn.xs.util.ImageFileUtil;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.PagingScrollHelper;
 
@@ -48,7 +55,7 @@ public class VideoFragment extends Fragment {
 
 
     //the data resource
-    private ArrayList<Video> videos;
+    private ArrayList<Video> videos= new ArrayList<>();;
     private Video deployedVideo;//recent videos from deploy activity
 
     public VideoFragment() {
@@ -74,9 +81,9 @@ public class VideoFragment extends Fragment {
             }
         });
 
-        initVideo();
         RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos,linerLayoutManager);
         recyclerView.setAdapter(videoAdapter);
+        initVideo();
 
         initSwipedLayout(view);
         return view;
@@ -112,28 +119,37 @@ public class VideoFragment extends Fragment {
      * init video resource
      */
     private void initVideo(){
-        videos = new ArrayList<>();
-        Video temp ;
-        String basePath = FileUtil.getCamera2Path()+"deploy"+ File.separator;
-        List<String> pathList = FileUtil.traverseFolder(basePath);
-        if (pathList != null){
-            Log.d(TAG, "initVideo: get local videos size = "+pathList.size());
-            for (String url:pathList) {
-                temp = new Video();
-                temp.setUrl(url);
-                temp.setDesc(defaultTitle[(int) (Math.random()*8)]);
-                temp.setLength((int) ImageFileUtil.getDuration(url));
-                temp.setDeployed(FileUtil.getLastModifiedTime(url));
-                videos.add(temp);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().get().url("http://www.zippler.cn/xserver/video/list").build();
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "onFailure: " );
             }
-        }else{
-            Log.d(TAG, "initVideo: no deployed video here..");
-        }
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                String responseStr = response.body().string();
+                Gson gson = new Gson();
+                List<VideoGson> videoGsons;
+                videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {}.getType());
+                Video temp;
+                for (VideoGson videoGson:videoGsons) {
+                    temp = new Video();
+                    temp.setUrl(videoGson.getUrl());
+                    temp.setDesc(videoGson.getDescription());
+                    temp.setLength(15000);//updated by backstage.
+                    temp.setDeployed(videoGson.getDeployTime().replace("T"," "));
+                    videos.add(temp);
+                }
+                if (deployedVideo!=null){
+                    videos.add(0,deployedVideo);
+                }
+                Log.d(TAG, "onResponse: 数据加载完成");
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
 
-
-        if (deployedVideo!=null){
-            videos.add(0,deployedVideo);
-        }
     }
 
     public SwipeRefreshLayout getSwipeRefreshLayout() {

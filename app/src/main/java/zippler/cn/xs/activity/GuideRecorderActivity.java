@@ -101,7 +101,6 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
 
     private void initViews(){
         preview = findViewById(R.id.preview_c);
-//        back = findViewById(R.id.back);
         changeMode = findViewById(R.id.change_mode_c);
         exposure = findViewById(R.id.exposure_c);
         reverse = findViewById(R.id.camera_id_c);
@@ -114,13 +113,13 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         barWavesView = findViewById(R.id.music_guide);
         barWavesView.setBarColor(ColorUtil.getRandomColor()); // ColorUtils.getRandomColor() 获得一个随机颜色
 
-        int[][] cs = new int[barWavesView.getWaveNumber()][2];
+        /*int[][] cs = new int[barWavesView.getWaveNumber()][2];
         for (int i = 0; i < cs.length; i++) {
             // 控件允许给每一条波浪条单独设置颜色，这两个颜色将以纵向渐变的形式被绘制
             cs[i][0] = ColorUtil.getRandomColor();
             cs[i][1] = ColorUtil.getRandomColor();
         }
-        barWavesView.setWaveColor(cs);
+        barWavesView.setWaveColor(cs);*/
         Log.e(TAG, "initViews: 初始化音频可视化");
         Music music = new Music();
         music.setLocalStorageUrl(musicPath);//set music path;

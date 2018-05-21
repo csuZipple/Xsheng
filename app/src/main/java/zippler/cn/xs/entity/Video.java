@@ -1,11 +1,6 @@
 package zippler.cn.xs.entity;
 
-import android.annotation.SuppressLint;
-
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by Zipple on 2018/5/5.
@@ -18,7 +13,7 @@ public class Video implements Serializable {
     private String url;
     private String localStorageUrl;
     private String desc;
-    private Timestamp deployed;
+    private String deployed;
     private int favorite;
     private String poster;
     private String length;//the total time of the video
@@ -64,11 +59,10 @@ public class Video implements Serializable {
     }
 
     public String getDeployed() {
-        @SuppressLint("SimpleDateFormat") DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return deployed==null?"":sdf.format(deployed);
+        return deployed;
     }
 
-    public void setDeployed(Timestamp deployed) {
+    public void setDeployed(String deployed) {
         this.deployed = deployed;
     }
 
