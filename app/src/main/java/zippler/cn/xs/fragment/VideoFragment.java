@@ -80,10 +80,9 @@ public class VideoFragment extends Fragment {
                 Log.e(TAG, "onChanged: current page is "+position);
             }
         });
-
+        initVideo();
         RecyclerVideoAdapter videoAdapter = new RecyclerVideoAdapter(getContext(),videos,linerLayoutManager);
         recyclerView.setAdapter(videoAdapter);
-        initVideo();
 
         initSwipedLayout(view);
         return view;
@@ -134,9 +133,10 @@ public class VideoFragment extends Fragment {
                 List<VideoGson> videoGsons;
                 videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {}.getType());
                 Video temp;
+                videos.clear();
                 for (VideoGson videoGson:videoGsons) {
                     temp = new Video();
-                    temp.setUrl(videoGson.getUrl());
+                    temp.setUrl("http://www.zippler.cn/xserver/video/preview/"+videoGson.getUrl());
                     temp.setDesc(videoGson.getDescription());
                     temp.setLength(15000);//updated by backstage.
                     temp.setDeployed(videoGson.getDeployTime().replace("T"," "));
