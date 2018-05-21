@@ -27,8 +27,12 @@ import java.util.List;
 
 import VideoHandle.EpVideo;
 import zippler.cn.xs.R;
+import zippler.cn.xs.component.BarWavesView;
+import zippler.cn.xs.component.MediaController;
+import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.handler.RecordTimerRunnable;
 import zippler.cn.xs.listener.CombinedOnEditorListener;
+import zippler.cn.xs.util.ColorUtil;
 import zippler.cn.xs.util.FFmpegEditor;
 import zippler.cn.xs.util.FileUtil;
 
@@ -45,6 +49,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private ProgressBar record_circle_progress;
     private ProgressBar record_line_progress;
     private ImageView pauseBtn;
+    private BarWavesView barWavesView;
+    private MediaController controller;
 
 
     private SurfaceTexture surface;
@@ -104,6 +110,28 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         record_circle_progress = findViewById(R.id.record_progress_c);
         record_line_progress = findViewById(R.id.record_line_progress_c);
         pauseBtn = findViewById(R.id.pause_btn_c);
+
+        barWavesView = findViewById(R.id.music_guide);
+        barWavesView.setBarColor(ColorUtil.getRandomColor()); // ColorUtils.getRandomColor() 获得一个随机颜色
+
+        int[][] cs = new int[barWavesView.getWaveNumber()][2];
+        for (int i = 0; i < cs.length; i++) {
+            // 控件允许给每一条波浪条单独设置颜色，这两个颜色将以纵向渐变的形式被绘制
+            cs[i][0] = ColorUtil.getRandomColor();
+            cs[i][1] = ColorUtil.getRandomColor();
+        }
+        barWavesView.setWaveColor(cs);
+        Log.e(TAG, "initViews: 初始化音频可视化");
+        Music music = new Music();
+        music.setLocalStorageUrl(musicPath);//set music path;
+        controller = new MediaController(this,music);
+        controller.setupVisualizer(barWavesView.getWaveNumber(), 50, new MediaController.onFftDataCaptureListener() {
+            @Override
+            public void onFftCapture(float[] fft) {
+                barWavesView.setWaveHeight(fft);
+            }
+        });
+        controller.setVisualizerEnable(true);
     }
 
     private void registerListeners(){
@@ -197,6 +225,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        controller.releaseMediaPlayer();
     }
 
     /**

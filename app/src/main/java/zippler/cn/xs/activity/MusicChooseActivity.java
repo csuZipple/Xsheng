@@ -85,7 +85,7 @@ public class MusicChooseActivity extends BaseActivity {
         musicList = new ArrayList<>();
         MediaPlayer player;
         //add music data here . it also can be load from internet
-        String[] names= {"Horizontal","panama"};
+        String[] names= {"Tank Battle","Horizontal"};
         for (int i = 1; i <= 1; i++) {
             Music temp = new Music();
             temp.setName(names[i-1]);

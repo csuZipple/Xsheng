@@ -135,8 +135,23 @@
             android:src="@mipmap/pause"
             android:contentDescription="@string/app_english"/>
 
-
     </RelativeLayout>
+
+
+    <zippler.cn.xs.component.BarWavesView
+        android:id="@+id/music_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="80dp"
+        app:barHeight="0dp"
+        app:waveColor="#7eaeaeae"
+        app:waveInterval="5dp"
+        app:waveMinHeight="0dp"
+        app:waveNumber="33"
+        app:waveRange="130dp"
+        app:waveWidth="6dp" />
 
 
 </RelativeLayout>
