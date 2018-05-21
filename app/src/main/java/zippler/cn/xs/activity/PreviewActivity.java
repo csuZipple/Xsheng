@@ -27,9 +27,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import VideoHandle.EpEditor;
+import VideoHandle.EpVideo;
 import VideoHandle.OnEditorListener;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerThumbnailsAdapter;
+import zippler.cn.xs.component.DoubleSeekBar;
 import zippler.cn.xs.entity.Music;
 import zippler.cn.xs.listener.CombinedMusicEditorListener;
 import zippler.cn.xs.util.FFmpegEditor;
@@ -43,18 +46,24 @@ public class PreviewActivity extends BaseActivity {
     private ArrayList<String> videoPaths = new ArrayList<>();
     private String output;
 
-    private ImageView back;
+    private int lastLow = 0;
+    private int lastHight = 100;
+
     private TextView nextStep;
     private VideoView videoView;
     private ImageView playBtn;
     private RecyclerView thumbnails;
     private ImageView deleteBtn;
     private ImageView loading;
+    private DoubleSeekBar dsb;
+    private TextView clip_btn;
 
     private List<String> thumbs = new ArrayList<>();
     private MediaMetadataRetriever mediaMetadataRetriever;
 
     private CombinedMusicEditorListener listener;
+
+    private  String outfile;//output file
 
 
     @Override
@@ -87,10 +96,6 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private void initRecycler(){
-        mediaMetadataRetriever= new MediaMetadataRetriever();
-        Log.d(TAG, "initViews: path:"+path);
-        mediaMetadataRetriever.setDataSource(path);
-        duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         //init recycler view
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);//set horizontal
@@ -105,7 +110,7 @@ public class PreviewActivity extends BaseActivity {
                 long time = System.currentTimeMillis();
                 try {
                     initThumbnails();
-                } catch (Exception e) {
+                }catch (Exception e) {
                     e.printStackTrace();
                 }
                 Log.d(TAG, "run after init Thumbnails: spend time: "+(System.currentTimeMillis()-time));
@@ -114,13 +119,19 @@ public class PreviewActivity extends BaseActivity {
     }
 
     private void initViews(){
-        back = findViewById(R.id.back_preview);
         nextStep = findViewById(R.id.next_step_after_preview);
         videoView = findViewById(R.id.video);
         playBtn = findViewById(R.id.play_btn);
 //        thumbnails = findViewById(R.id.thumbnails); // 留待有缘人来实现视频截取功能吧...目前的代码存在内存溢出问题，暂时不做了
         deleteBtn = findViewById(R.id.delete_btn);
         loading = findViewById(R.id.loading);
+        dsb = findViewById(R.id.dsb);
+        mediaMetadataRetriever= new MediaMetadataRetriever();
+        Log.d(TAG, "initViews: path:"+path);
+        mediaMetadataRetriever.setDataSource(path);//如何判断这里能否播放？
+        duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+
+        clip_btn = findViewById(R.id.clip_btn);
     }
 
     private void initThumbnails() {
@@ -184,9 +195,9 @@ public class PreviewActivity extends BaseActivity {
 
     private void registerListener(){
         nextStep.setOnClickListener(this);
-        back.setOnClickListener(this);
         playBtn.setOnClickListener(this);
         deleteBtn.setOnClickListener(this);
+        clip_btn.setOnClickListener(this);
 
 
         videoView.setOnTouchListener(new View.OnTouchListener(){
@@ -211,11 +222,35 @@ public class PreviewActivity extends BaseActivity {
                 return true;
             }
         });
+
+        dsb.setOnSeekBarChangeListener(new DoubleSeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(DoubleSeekBar seekBar, int progressLow, int progressHigh) {
+                Log.e(TAG, "duration "+duration );
+                if (videoView.isPlaying()){
+                    videoView.pause();
+                }
+
+                if (progressLow!=lastLow){
+                    Log.e(TAG, "origin low "+progressLow);
+                    Log.e(TAG, "low :"+(int) (progressLow*duration/100) );
+                    videoView.seekTo((int) (progressLow*duration/100));//seek to key frame...
+                    lastLow = progressLow;
+                }
+
+                if (progressHigh!=lastHight){
+                    Log.e(TAG, "high :"+(int) (progressHigh*duration/100) );
+                    videoView.seekTo((int) (progressHigh*duration/100));
+                    lastHight = progressHigh;
+                }
+
+            }
+        });
+
     }
 
     private void removeListeners(){
         nextStep.setOnClickListener(null);
-        back.setOnClickListener(null);
         playBtn.setOnClickListener(null);
         deleteBtn.setOnClickListener(null);
 
@@ -228,8 +263,8 @@ public class PreviewActivity extends BaseActivity {
             case R.id.next_step_after_preview:
                 upload();
                 break;
-            case R.id.back_preview:
-                finish();
+            case R.id.clip_btn:
+                clip();
                 break;
             case R.id.delete_btn:
                 deleteCurrentVideo();
@@ -242,6 +277,53 @@ public class PreviewActivity extends BaseActivity {
                 toast("default clicked");
                 break;
         }
+    }
+
+    private void clip(){
+        Log.d(TAG, "clip: 正在裁剪");
+        EpVideo epVideo = new EpVideo(path);
+        float start = (float)lastLow*duration/100000;
+        float dt = (float)((lastHight-lastLow)*duration/100000);
+        Log.e(TAG, "clip: start="+start+" 持续时间："+dt);
+        epVideo.clip(start,dt);
+        String root = FileUtil.getCamera2Path();
+        FileUtil.createSavePath(root);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        outfile = root + "形声_" + timeStamp + ".mp4";
+
+        loading.setVisibility(View.VISIBLE);
+        videoView.pause();
+
+        Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
+        operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        loading.startAnimation(operatingAnim);
+        removeListeners();
+
+        EpEditor.OutputOption outputOption = new EpEditor.OutputOption(outfile);
+        outputOption.frameRate = 30;//输出视频帧率,默认30
+        outputOption.bitRate = 10;//输出视频码率,默认10
+        EpEditor.exec(epVideo, outputOption, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+                Log.e(TAG, "onSuccess: 裁剪完成");
+                //继续进入这个页面
+                Intent intent = new Intent(PreviewActivity.this,PreviewActivity.class);
+                intent.putExtra("videoPath",  outfile);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: 视频剪辑失败" );
+            }
+
+            @Override
+            public void onProgress(float progress) {
+                //这里获取处理进度
+                Log.e(TAG, "onProgress: "+progress);
+            }
+        });
     }
 
     /**

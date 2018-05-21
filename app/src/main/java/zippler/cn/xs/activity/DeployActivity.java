@@ -87,7 +87,9 @@ public class DeployActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(3000);
+
+                    //test for deployed
+
                     Intent intent = new Intent(DeployActivity.this,MainActivity.class);
                     Video video = new Video();
                     video.setName("default username..");

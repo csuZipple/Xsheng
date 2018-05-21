@@ -138,6 +138,9 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         switch (v.getId()){
             case R.id.change_mode_c:
                 //change record type.
+                if (isRecordOn){ //oom
+                    stop();
+                }
                 Intent intent = new Intent(this,MusicChooseActivity.class);
                 startActivity(intent);
                 break;
