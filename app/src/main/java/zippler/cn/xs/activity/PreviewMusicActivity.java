@@ -215,7 +215,7 @@ public class PreviewMusicActivity extends BaseActivity {
     private void gotoDeploy(){
         video.pause();
 
-        final Intent intent = new Intent(this,DeployActivity.class);
+        Intent intent = new Intent(this,DeployActivity.class);
 
         //move to deploy
         final String result;
@@ -236,8 +236,11 @@ public class PreviewMusicActivity extends BaseActivity {
 
         removeListeners();
 
+        intent.putExtra("videoPath",result);
+        startActivity(intent);
+        finish();//not to back...because of this video maybe deleted.
 
-        addText(result, new OnEditorListener() {
+        /*addText(result, new OnEditorListener() {
             @Override
             public void onSuccess() {
                 //delete the old file
@@ -259,7 +262,7 @@ public class PreviewMusicActivity extends BaseActivity {
             public void onProgress(float v) {
 
             }
-        });
+        });*/
 
 /*
 //      may be add text is more useful...

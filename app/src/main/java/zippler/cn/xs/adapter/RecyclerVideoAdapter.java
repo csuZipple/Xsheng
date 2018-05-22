@@ -17,6 +17,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -52,6 +55,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
     private String TAG=this.getClass().getSimpleName();
 
     boolean isClicked = false;
+    private int old_duration = 0;
 
 
     public RecyclerVideoAdapter(Context context, List<Video> videoList, LinerLayoutManager linerLayoutManager) {
@@ -83,6 +87,8 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         final ImageView love = holder.getLove();
 
         final String url = videoList.get(position).getUrl()==null?videoList.get(position).getLocalStorageUrl():videoList.get(position).getUrl();
+
+        final ImageView loading = holder.getLoading();
 
         holder.getComment().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +151,6 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                 return true;
             }
         });
-        //how to solve the black ground problem..?
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -160,8 +165,32 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                         poster.setVisibility(View.GONE);
                         videoView.start();
                     }
+                    loading.setVisibility(View.INVISIBLE);
                 }
                 return true;
+            }
+        });
+
+        videoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
+                if(what==MediaPlayer.MEDIA_INFO_BUFFERING_START ){
+                    Animation operatingAnim = AnimationUtils.loadAnimation(context, R.anim.loading);
+                    operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+                    loading.startAnimation(operatingAnim);
+
+                    loading.setVisibility(View.VISIBLE);
+                }else{
+                    loading.setVisibility(View.INVISIBLE);
+                }
+                return true;
+            }
+        });
+
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                Log.d(TAG, "onPrepared: 加载视频数据完成");
             }
         });
 

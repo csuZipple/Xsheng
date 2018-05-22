@@ -112,6 +112,15 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/loading_movie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/load_movie"
+            android:layout_marginTop="120dp"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/app_chinese"
+            android:visibility="invisible"/>
+        <ImageView
             android:id="@+id/play"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -132,7 +141,7 @@
             android:id="@+id/love"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="18dp"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
             android:src="@mipmap/love_white"
@@ -152,7 +161,7 @@
             android:id="@+id/redeploy"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="18dp"
 
             android:adjustViewBounds="true"
             android:scaleType="fitXY"

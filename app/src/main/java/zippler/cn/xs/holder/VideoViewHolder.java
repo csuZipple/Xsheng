@@ -26,6 +26,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     private ImageView redeploy;
     private ImageView love;
     private RelativeLayout videoRoot;
+    private ImageView loading;
 
     public VideoViewHolder(View itemView) {
         super(itemView);
@@ -40,6 +41,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         redeploy = itemView.findViewById(R.id.redeploy);
         love = itemView.findViewById(R.id.love);
         videoRoot = itemView.findViewById(R.id.video_root);
+        loading = itemView.findViewById(R.id.loading_movie);
     }
 
     public ImageView getPoster() {
@@ -128,5 +130,13 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
 
     public void setVideoRoot(RelativeLayout videoRoot) {
         this.videoRoot = videoRoot;
+    }
+
+    public ImageView getLoading() {
+        return loading;
+    }
+
+    public void setLoading(ImageView loading) {
+        this.loading = loading;
     }
 }

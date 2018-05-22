@@ -136,7 +136,7 @@ public class VideoFragment extends Fragment {
                 videos.clear();
                 for (VideoGson videoGson:videoGsons) {
                     temp = new Video();
-                    temp.setUrl("http://www.zippler.cn/xserver/video/preview/"+videoGson.getUrl());
+                    temp.setUrl("http://www.zippler.cn/xserver/preview/"+videoGson.getUrl());
                     temp.setDesc(videoGson.getDescription());
                     temp.setLength(15000);//updated by backstage.
                     temp.setDeployed(videoGson.getDeployTime().replace("T"," "));
