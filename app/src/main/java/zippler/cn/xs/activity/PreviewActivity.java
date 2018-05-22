@@ -431,8 +431,10 @@ public class PreviewActivity extends BaseActivity {
 
     }
 
-
-
+    /**
+     * download from internet.
+     * @return
+     */
     private List<Music> depositMp3(){
         String cache = "mp3"+File.separator;
         FileUtil.createSavePath(FileUtil.getCamera2Path()+cache);

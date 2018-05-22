@@ -62,6 +62,8 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         this.context = context;
         this.videoList = videoList;
         this.linearLayout = linerLayoutManager;
+
+        Log.d(TAG, "RecyclerVideoAdapter: "+Thread.currentThread());
     }
 
     @NonNull
@@ -165,7 +167,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                         poster.setVisibility(View.GONE);
                         videoView.start();
                     }
-                    loading.setVisibility(View.INVISIBLE);
+//                    loading.setVisibility(View.INVISIBLE);
                 }
                 return true;
             }
@@ -178,10 +180,13 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                     Animation operatingAnim = AnimationUtils.loadAnimation(context, R.anim.loading);
                     operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
                     loading.startAnimation(operatingAnim);
-
+                    Log.e(TAG, "onInfo: loading set visible "+ Thread.currentThread() );
                     loading.setVisibility(View.VISIBLE);
                 }else{
+                    Log.e(TAG, "onInfo: loading set gone "+ Thread.currentThread().getName() );
                     loading.setVisibility(View.INVISIBLE);
+                    loading.clearAnimation();
+                    loading.postInvalidate();
                 }
                 return true;
             }
@@ -217,7 +222,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         if (url!=null){
             videoView.setVideoURI(Uri.parse(url));//IOException??
 //            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
-            Glide.with(context).load(url).thumbnail(1.0f).error( R.drawable.n ).into(poster);//glide行不通
+            Glide.with(context).load(url).thumbnail(1.0f).error( R.drawable.splash_bg).into(poster);//glide行不通
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));

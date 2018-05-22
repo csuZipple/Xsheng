@@ -44,7 +44,7 @@ public class DoubleSeekBar extends View {
         int width = measureWidth(widthMeasureSpec);
         int height = measureHeight(heightMeasureSpec);
         mScollBarWidth = width-offset;
-        mScollBarHeight=20;
+        mScollBarHeight=10;
         currentX=offset;
         currentX2=width-offset;
         offset=20;

@@ -39,7 +39,7 @@ public class MediaController implements PlayController {
         }
 
         mPlayer = MediaPlayer.create(context, Uri.parse(music.getLocalStorageUrl()));
-        mPlayer.start();
+//        mPlayer.start();
         mPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {

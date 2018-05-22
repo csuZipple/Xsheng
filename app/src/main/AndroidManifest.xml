@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="zippler.cn.xs">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -32,14 +33,14 @@
         <activity android:name=".activity.PreviewMusicActivity" />
         <activity android:name=".activity.PreviewFullVideoActivity" />
         <activity android:name=".activity.SettingsActivity" />
-
         <activity android:name=".activity.UserInfoActivity" />
         <activity android:name=".activity.AboutActivity" />
         <activity android:name=".activity.GuideRecorderActivity" />
         <activity
             android:name=".activity.CommentActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden"/>
-        <activity android:name=".activity.MusicChooseActivity"/>
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity android:name=".activity.MusicChooseActivity" />
+        <activity android:name=".activity.TransmissionActivity"></activity>
     </application>
 
 </manifest>

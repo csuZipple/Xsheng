@@ -19,13 +19,22 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
+import VideoHandle.OnEditorListener;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import zippler.cn.xs.R;
 import zippler.cn.xs.component.BarWavesView;
 import zippler.cn.xs.component.MediaController;
@@ -380,6 +389,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private void record() {
         prepare();
         playMusic(R.raw.di);
+        controller.play();
         isRecordOn = true;//fixed camera unlock failed
         reverse.setVisibility(View.GONE);//maybe invisible
 
@@ -413,6 +423,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         recordBtn.setImageResource(R.mipmap.record);
         reverse.setVisibility(View.VISIBLE);
 
+        controller.stop();
 
         camera.lock();
         mediaRecorder.stop();
@@ -425,7 +436,26 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         Intent intent = new Intent(this,PreviewActivity.class);
         old.add(savedVideoPath);
         if (old.size()>1){
-            combinedPath = combinedVideos(old);
+            //先提交到服务器，获取每段视频需要压缩的时间
+           /* List<File> files = new ArrayList<>();
+            for (String ts: old) {
+                File temp = new File(ts);
+                files.add(temp);
+            }*/
+            /*upload2tts(4 + "", files, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                }
+            });*/
+            //tts();
+            //然后调用视频变速方法，最后合成
+            combinedPath = combinedVideos(old);//这里进行压缩合成...并且跳转到下一个activity 要重写
             Log.d(TAG, "gotoPreview: waiting for combined videos");
             //load a loading dialog
             final ProgressDialog dialog = ProgressDialog.show(this,"合成中...","请稍后...",true);
@@ -449,6 +479,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             intent.putExtra("videoPath",savedVideoPath);
             startActivity(intent);
         }
+        controller.releaseMediaPlayer();
     }
 
     /**
@@ -482,6 +513,30 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     }
 
     /**
+     * upload the videos to xserver.
+     */
+    private void upload2tts(String userId, List<File>files, Callback callback){
+        OkHttpClient client = new OkHttpClient();
+        MultipartBody.Builder requestBodyBuilder =new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+        int i = 0;
+        for (File temp:files) {
+            RequestBody fileBody = RequestBody.create(MediaType.parse("video/mp4"), temp);
+
+            requestBodyBuilder.addFormDataPart("file"+i, temp.getName(), fileBody)
+                    .addFormDataPart("userId", userId);
+            i++;
+        }
+        RequestBody requestBody = requestBodyBuilder.build();
+        Request request = new Request.Builder()
+                .url("http://127.79.237.105/xserver/upload")
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+
+    /**
      * waiting for this videos
      * @param paths the old videos
      * @return the combined video path
@@ -500,6 +555,26 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         editorListener = new CombinedOnEditorListener(old,isCombined);
         FFmpegEditor.mergeByLc(root, epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
         return outFile;
+    }
+
+
+    private void tts(String videoPath,String outfilePath,float speed){
+        EpEditor.changePTS(videoPath, outfilePath, speed, EpEditor.PTS.ALL, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+
+            @Override
+            public void onProgress(float progress) {
+
+            }
+        });
     }
 
 
