@@ -3,12 +3,8 @@ package zippler.cn.xs.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -30,7 +27,6 @@ import android.widget.VideoView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import zippler.cn.xs.R;
@@ -38,6 +34,7 @@ import zippler.cn.xs.component.CommentPopView;
 import zippler.cn.xs.entity.Comment;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.holder.VideoViewHolder;
+import zippler.cn.xs.task.ThumbnailAsnycTask;
 import zippler.cn.xs.util.LinerLayoutManager;
 import zippler.cn.xs.util.PxUtil;
 
@@ -165,11 +162,26 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                     }else{
                         playBtn.setVisibility(View.INVISIBLE);
                         poster.setVisibility(View.GONE);
+                        poster.clearAnimation();
+                        poster.postInvalidate();
                         videoView.start();
                     }
 //                    loading.setVisibility(View.INVISIBLE);
                 }
                 return true;
+            }
+        });
+
+        poster.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!videoView.isPlaying()){
+                    playBtn.setVisibility(View.INVISIBLE);
+                    poster.setVisibility(View.GONE);
+                    poster.clearAnimation();
+                    poster.postInvalidate();
+                    videoView.start();
+                }
             }
         });
 
@@ -222,7 +234,19 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         if (url!=null){
             videoView.setVideoURI(Uri.parse(url));//IOException??
 //            Glide.with(context).load(new File(url)).thumbnail(1.0f).into(poster);
-            Glide.with(context).load(url).thumbnail(1.0f).error( R.drawable.splash_bg).into(poster);//glide行不通
+//            Glide.with(context).load(url).thumbnail(1.0f).error( R.drawable.splash_bg).into(poster);//glide行不通
+            ThumbnailAsnycTask thumbnailAsnycTask = new ThumbnailAsnycTask();
+            thumbnailAsnycTask.execute(url);
+            thumbnailAsnycTask.setListener(new ThumbnailAsnycTask.OnFinishedListener(){
+                @Override
+                public void onFinished(Bitmap bitmap) {
+                    AlphaAnimation mShowAnimation = new AlphaAnimation(0.0f, 1.0f);
+                    mShowAnimation.setDuration(500);
+                    mShowAnimation.setFillAfter(true);
+                    poster.startAnimation(mShowAnimation);
+                    poster.setImageBitmap(bitmap);
+                }
+            });
         }else{
             if (localUrl!=null){
                 videoView.setVideoURI(Uri.parse(localUrl));
@@ -248,7 +272,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
 
         comments.add(comment);
         comment = new Comment();
-        comment.setContent("哥练的胸肌，你要不要靠！");
+        comment.setContent("等你下课，四面楚歌");
         comment.setTime("2小时前");
         comment.setName("icelee");
         comment.setPic(R.drawable.pikachu);
@@ -277,34 +301,5 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
         customToast.setDuration(Toast.LENGTH_SHORT);
         customToast.setGravity(Gravity.CENTER,0,0);
         customToast.show();
-    }
-
-    private Bitmap createVideoThumbnail(String url, int width, int height) {
-        Bitmap bitmap = null;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        int kind = MediaStore.Video.Thumbnails.MINI_KIND;
-        try {
-            if (Build.VERSION.SDK_INT >= 14) {
-                retriever.setDataSource(url, new HashMap<String, String>());
-            } else {
-                retriever.setDataSource(url);
-            }
-            bitmap = retriever.getFrameAtTime();
-        } catch (IllegalArgumentException ex) {
-            // Assume this is a corrupt video file
-        } catch (RuntimeException ex) {
-            // Assume this is a corrupt video file.
-        } finally {
-            try {
-                retriever.release();
-            } catch (RuntimeException ex) {
-                // Ignore failures while cleaning up.
-            }
-        }
-        if (kind == MediaStore.Images.Thumbnails.MICRO_KIND && bitmap != null) {
-            bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
-                    ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
-        }
-        return bitmap;
     }
 }

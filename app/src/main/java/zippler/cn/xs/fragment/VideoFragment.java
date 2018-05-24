@@ -131,7 +131,7 @@ public class VideoFragment extends Fragment {
                 String responseStr = response.body().string();
                 Gson gson = new Gson();
                 List<VideoGson> videoGsons;
-                videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {}.getType());
+                videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {}.getType());//may cause exception
                 Video temp;
                 videos.clear();
                 for (VideoGson videoGson:videoGsons) {
@@ -146,7 +146,7 @@ public class VideoFragment extends Fragment {
                     videos.add(0,deployedVideo);
                 }
                 Log.d(TAG, "onResponse: 数据加载完成");
-                recyclerView.getAdapter().notifyDataSetChanged();
+                recyclerView.getAdapter().notifyDataSetChanged();//may cause exception
             }
         });
 

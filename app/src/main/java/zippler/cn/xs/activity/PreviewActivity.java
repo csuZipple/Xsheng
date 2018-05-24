@@ -19,9 +19,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,10 +33,20 @@ import java.util.List;
 import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
 import VideoHandle.OnEditorListener;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import zippler.cn.xs.R;
 import zippler.cn.xs.adapter.RecyclerThumbnailsAdapter;
 import zippler.cn.xs.component.DoubleSeekBar;
 import zippler.cn.xs.entity.Music;
+import zippler.cn.xs.gson.CheckGson;
+import zippler.cn.xs.gson.UTGson;
 import zippler.cn.xs.listener.CombinedMusicEditorListener;
 import zippler.cn.xs.util.FFmpegEditor;
 import zippler.cn.xs.util.FileUtil;
@@ -65,6 +78,8 @@ public class PreviewActivity extends BaseActivity {
 
     private  String outfile;//output file
 
+    private List<Music> musics;
+    private List<String> musicUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -403,27 +418,69 @@ public class PreviewActivity extends BaseActivity {
     private void upload(){
 
         try {
-//          uploadByPost("");
-
             //视频过滤
+//            check();
+            Log.d(TAG, "upload: 跳过视频过滤阶段...开始将视频文件上传到xsnet");
 
-            List<Music> musics = depositMp3();
-            Log.d(TAG, "upload: music size = "+musics.size());
+            OkHttpClient client = new OkHttpClient();
+            File video = new File(path);
+            RequestBody fileBody = RequestBody.create(MediaType.parse("video/mp4"), video);
+
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file", video.getName(), fileBody)
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url("http://47.95.203.153/upload_file")
+                    .post(requestBody)
+                    .build();
 
             //how to load a loading animation
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loading.setVisibility(View.VISIBLE);
+                    videoView.pause();
 
-            loading.setVisibility(View.VISIBLE);
-            videoView.pause();
+                    Animation operatingAnim = AnimationUtils.loadAnimation(PreviewActivity.this, R.anim.loading);
 
-            Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.loading);
-//            LinearInterpolator lin = new LinearInterpolator();
-            operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-            loading.startAnimation(operatingAnim);
+                    operatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+                    loading.startAnimation(operatingAnim);
+
+                    removeListeners();
+                }
+            });
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    //get mp3 urls
+//                    musicUrls = response.body().string();
+
+//                    Response response = client.newCall(request).execute();
+                    Log.d(TAG, "upload: 上传到xsnet成功");
+                    Gson gson  = new Gson();
+
+                    UTGson utGson = gson.fromJson(response.body().string(),UTGson.class);
+                    musicUrls = utGson.getData();
+                    Log.d(TAG, "upload: 解析返回json数据成功");
+
+                    musics = depositMp3(musicUrls);
+                    Log.d(TAG, "upload: 下载mp3成功  size = "+musics.size());
 
 
-            removeListeners();
+                    Log.d(TAG, "upload: 开始合成背景音乐");
+                    attachBgm(musics);
 
-            attachBgm(musics);
+                }
+            });
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -431,30 +488,90 @@ public class PreviewActivity extends BaseActivity {
 
     }
 
+    private boolean check(){
+        String checkUrl = "https://api.aq.163.com/vx/xsheng/check";
+        OkHttpClient client = new OkHttpClient();
+        File video = new File(path);//upload files.
+        RequestBody fileBody = RequestBody.create(MediaType.parse("video/mp4"), video);
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", video.getName(), fileBody)
+                .addFormDataPart("secretId", "e330e97fd008a26cdc89272c056c4154")
+                .addFormDataPart("businessId", "a98712741b585a1de8b0d4fa4a61e2cf")
+                .addFormDataPart("version", "1.0")
+                .addFormDataPart("timestamp", System.currentTimeMillis()+"")
+                .addFormDataPart("nonce", (int)(Math.random()*100)+"")
+                .addFormDataPart("signature", "394345e26cbf9c6d31ca513708e6c3a6")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(checkUrl)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "onResponse: "+response.body().string());
+                Gson gson = new Gson();
+                CheckGson checkGson = gson.fromJson(response.body().string(),CheckGson.class);
+                checkGson.getCode();
+            }
+        });
+        return false;
+    }
+
     /**
      * download from internet.
      * @return
+     * @param musicUrls
      */
-    private List<Music> depositMp3(){
+    private List<Music> depositMp3(List<String> musicUrls) throws IOException {
         String cache = "mp3"+File.separator;
         FileUtil.createSavePath(FileUtil.getCamera2Path()+cache);
-
+        String mp3cache = FileUtil.getCamera2Path()+cache;
         List<Music> musics = new ArrayList<>();
-
-        //deposit here...
-        Music temp = new Music();
-        temp.setLocalStorageUrl(FileUtil.getCamera2Path()+"test.mp3");
-        temp.setName("Tank");
-        musics.add(temp);
-
-        temp = new Music();
-        temp.setLocalStorageUrl(FileUtil.getCamera2Path()+"j.mp3");
-        temp.setName("Hora");
-        musics.add(temp);
+        //download music from internet.
+        for (String tempUrl : musicUrls) {
+            OkHttpClient client = new OkHttpClient();
+            final Request request = new Request
+                    .Builder()
+                    .get()
+                    .url(tempUrl)
+                    .build();
+            Call call = client.newCall(request);
+            Response response = call.execute();
+            InputStream inputStream = response.body().byteStream();
+            String name = tempUrl.substring(tempUrl.lastIndexOf("/"));
+            File mp3 = new File(mp3cache+name);
+            if (mp3.exists()){
+                Log.d(TAG, "depositMp3: 当前mp3已存在");
+            }else {
+                File file = new File(mp3cache, name);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                byte[] tempsize = new byte[128];
+                int length;
+                while ((length = inputStream.read(tempsize)) != -1) {
+                    fileOutputStream.write(tempsize, 0, length);
+                }
+                fileOutputStream.flush();
+                fileOutputStream.close();
+                inputStream.close();
+                Music temp = new Music();
+                temp.setLocalStorageUrl(mp3cache + name);
+                musics.add(temp);
+                Log.d(TAG, "depositMp3: 下载mp3..");
+            }
+        }
 
         return musics;
     }
-
 
     private  void attachBgm(final List<Music> musics){
         if(musics==null || musics.size()==0) {
