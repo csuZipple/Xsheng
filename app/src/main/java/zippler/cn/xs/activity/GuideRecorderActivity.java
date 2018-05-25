@@ -350,11 +350,13 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
      * stop the timer
      */
     private void pauseTimer(){
-        progress = runnable.getProgress();//get current progress
-        time = runnable.getTime();//get current remained time;
-        handler.removeCallbacks(runnable);
-        runnable = null;
-        Log.d(TAG, "pauseTimer: pause timer");
+        if (runnable!=null){
+            progress = runnable.getProgress();//get current progress
+            time = runnable.getTime();//get current remained time;
+            handler.removeCallbacks(runnable);
+            runnable = null;
+            Log.d(TAG, "pauseTimer: pause timer");
+        }
     }
 
     /**
@@ -448,7 +450,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         tts(old, rootPath, 1.8f);
 
         //load a loading dialog
-         dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
+        dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
         final Handler timerHandler = new Handler();
 
         timerHandler.postDelayed(new Runnable() {
@@ -540,7 +542,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             Log.d(TAG, "combinedVideos: current = "+temp);
             epVideos.add(new EpVideo(temp));
         }
-        FFmpegEditor.mergeByLc(root, epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
+//        FFmpegEditor.mergeByLc(root, epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
+        FFmpegEditor.merge(epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
         return outFile;
     }
 

@@ -107,7 +107,7 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
                 textIntent.setType("text/plain");
                 View view = linearLayout.findViewByPosition(holder.getAdapterPosition());
                 TextView title = view.findViewById(R.id.video_name);
-                textIntent.putExtra(Intent.EXTRA_TEXT, title.getText()+"\n视频:"+url+"\n\n来自形声. \n形声，以形作声.");
+                textIntent.putExtra(Intent.EXTRA_TEXT, title.getText()+"\n视频地址:"+url+"\n\n来自形声. \n形声，以形作声,您的私人配乐专家.");
                 context.startActivity(Intent.createChooser(textIntent, "来自形声的分享"));
             }
         });

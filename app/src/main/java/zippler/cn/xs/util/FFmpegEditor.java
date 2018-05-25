@@ -122,6 +122,7 @@ public class FFmpegEditor  {
     }
 
     public static void merge(List<EpVideo> epVideos, FFmpegEditor.OutputOption outputOption, OnEditorListener onEditorListener) {
+        Log.d("ffmpeg", "merge: 调用merge方法");
         boolean isNoAudioTrack = false;
         Iterator var4 = epVideos.iterator();
 
@@ -147,8 +148,8 @@ public class FFmpegEditor  {
             mediaExtractor.release();
         }
 
-        outputOption.width = outputOption.width == 0?480:outputOption.width;
-        outputOption.height = outputOption.height == 0?360:outputOption.height;
+        outputOption.width = outputOption.width == 0?1080:outputOption.width;
+        outputOption.height = outputOption.height == 0?1920:outputOption.height;
         if(epVideos.size() <= 1) {
             throw new RuntimeException("Need more than one video");
         } else {
@@ -283,6 +284,7 @@ public class FFmpegEditor  {
                 }
             }
             Log.d("RecorderActivity", "mergeByLc: 开始执行合并视频命令");
+            Log.d("ffmepg", "mergeByLc: 合并视频时长："+duration);
             execCmd(cmd, duration, onEditorListener);
         }else{
             Log.e("RecorderActivity", "mergeByLc: error in create concat file" );
