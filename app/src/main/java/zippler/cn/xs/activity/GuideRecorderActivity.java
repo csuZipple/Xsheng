@@ -455,6 +455,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             });*/
             //tts();
             //然后调用视频变速方法，最后合成
+//            upload2tts();
             combinedPath = combinedVideos(old);//这里进行压缩合成...并且跳转到下一个activity 要重写
             Log.d(TAG, "gotoPreview: waiting for combined videos");
             //load a loading dialog

@@ -131,8 +131,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         //add music data here . it also can be load from internet
         for (int i = 1; i <= 1; i++) {
             Music temp = new Music();
-            temp.setName("合成曲_"+i);
-            temp.setLocalStorageUrl(getCamera2Path()+"test.mp3");
+            temp.setName("合成曲_night");
+//            temp.setLocalStorageUrl(getCamera2Path()+"test.mp3");
+            temp.setLocalStorageUrl(getCamera2Path()+"night.mp3");
             player = MediaPlayer.create(this.getContext(),Uri.parse(temp.getLocalStorageUrl()));
 
             temp.setDuration(player.getDuration());
@@ -143,8 +144,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
         for (int i = 2; i <= 2; i++) {
             Music s = new Music();
-            s.setName("合成曲__"+i);
-            s.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+            s.setName("合成曲__brother");
+//            s.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+            s.setLocalStorageUrl(getCamera2Path()+"brother.mp3");
             player = MediaPlayer.create(this.getContext(),Uri.parse(s.getLocalStorageUrl()));
             s.setDuration(player.getDuration());
             s.setLength(player.getDuration());
