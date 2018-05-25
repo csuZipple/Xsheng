@@ -136,27 +136,34 @@ public class VideoFragment extends Fragment {
                 String responseStr = response.body().string();
                 Gson gson = new Gson();
                 List<VideoGson> videoGsons;
-                videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {}.getType());//may cause exception
-                Video temp;
-                videos.clear();
-                for (VideoGson videoGson:videoGsons) {
-                    temp = new Video();
-                    temp.setUrl("http://www.zippler.cn/xserver/preview/"+videoGson.getUrl());
-                    temp.setDesc(videoGson.getDescription());
-                    temp.setLength(15000);//updated by backstage.
-                    temp.setDeployed(videoGson.getDeployTime().replace("T"," "));
-                    videos.add(temp);
-                }
-                if (deployedVideo!=null){
-                    videos.add(0,deployedVideo);
-                }
-                Log.d(TAG, "onResponse: 数据加载完成");
-                context.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.getAdapter().notifyDataSetChanged();//may cause exception
+                try {
+
+                    videoGsons = gson.fromJson(responseStr, new TypeToken<List<VideoGson>>() {
+                    }.getType());//may cause exception
+                    Video temp;
+                    videos.clear();
+                    for (VideoGson videoGson : videoGsons) {
+                        temp = new Video();
+                        temp.setUrl("http://www.zippler.cn/xserver/preview/" + videoGson.getUrl());
+                        temp.setDesc(videoGson.getDescription());
+                        temp.setLength(15000);//updated by backstage.
+                        temp.setDeployed(videoGson.getDeployTime().replace("T", " "));
+                        videos.add(temp);
                     }
-                });
+                    if (deployedVideo != null) {
+                        videos.add(0, deployedVideo);
+                    }
+                    Log.d(TAG, "onResponse: 数据加载完成");
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            recyclerView.getAdapter().notifyDataSetChanged();//may cause exception
+                        }
+                    });
+                }catch (Exception e){
+                    Log.e(TAG, "onResponse: 数据返回出错");
+                    e.printStackTrace();
+                }
             }
         });
 

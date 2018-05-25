@@ -32,6 +32,16 @@ public class FileUtil {
                 Log.d(TAG, "writeContentsToTxt: concat file exist");
                 if (file.delete()){
                     Log.d(TAG, "writeContentsToTxt: deleted concat file success");
+                    if (file.createNewFile()){
+                        RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+                        raf.seek(file.length());
+                        raf.write(strContent.getBytes());
+                        raf.close();
+                        Log.d(TAG, "writeContentsToTxt: create concat file success");
+                        result = true;
+                    }else{
+                        Log.e(TAG, "writeContentsToTxt: create concat file failed");
+                    }
                 }else{
                     Log.e(TAG, "writeContentsToTxt: deleted concat file failed");
                 }

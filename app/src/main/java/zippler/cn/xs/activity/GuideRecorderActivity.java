@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
@@ -49,7 +50,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
 
     //views
     private TextureView preview;
-//    private ImageView back;
+    //    private ImageView back;
     private TextView changeMode;
     private ImageView exposure;
     private ImageView reverse;
@@ -71,6 +72,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private MediaRecorder mediaRecorder;
     private String savedVideoPath;
     private List<String> old = new ArrayList<>();//old path
+    private List<String> outFiles = new ArrayList<>();
     private int backCamera = Camera.CameraInfo.CAMERA_FACING_BACK;
     private int frontCamera = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private boolean isLightOn;
@@ -93,6 +95,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private boolean isCombined = false;//combined video progress
 
     private String musicPath;
+
+    private String combinedPath;
 
 
     @Override
@@ -323,6 +327,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             }
         }else{
             stop();
+            pauseTimer();
             gotoPreview();
         }
     }
@@ -431,56 +436,34 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     }
 
     private void gotoPreview(){
-        final String combinedPath;
         Log.d(TAG, "stop: jump to preview");
-        Intent intent = new Intent(this,PreviewActivity.class);
+//        Intent intent = new Intent(this,PreviewActivity.class);
         old.add(savedVideoPath);
-        if (old.size()>1){
-            //先提交到服务器，获取每段视频需要压缩的时间
-           /* List<File> files = new ArrayList<>();
-            for (String ts: old) {
-                File temp = new File(ts);
-                files.add(temp);
-            }*/
-            /*upload2tts(4 + "", files, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
+        //然后调用视频变速方法，最后合成
+        String rootPath = FileUtil.getCamera2Path()+"videoCache/";
+        editorListener = new CombinedOnEditorListener(old,isCombined);
+        tts(old, rootPath, 1.8f);
 
+        //load a loading dialog
+        final ProgressDialog dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
+        final Handler timerHandler = new Handler();
+
+        timerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isCombined = editorListener.isFinished();
+                if (isCombined){
+
+                    dialog.dismiss();
+                    Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
+                    intent.putExtra("videoPath",combinedPath);
+                    startActivity(intent);
+                    controller.releaseMediaPlayer();
+                }else{
+                    timerHandler.postDelayed(this,500);
                 }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                }
-            });*/
-            //tts();
-            //然后调用视频变速方法，最后合成
-//            upload2tts();
-            combinedPath = combinedVideos(old);//这里进行压缩合成...并且跳转到下一个activity 要重写
-            Log.d(TAG, "gotoPreview: waiting for combined videos");
-            //load a loading dialog
-            final ProgressDialog dialog = ProgressDialog.show(this,"合成中...","请稍后...",true);
-            final Handler timerHandler = new Handler();
-            timerHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isCombined = editorListener.isFinished();
-                    if (isCombined){
-                        dialog.dismiss();
-                        Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
-                        intent.putExtra("videoPath",combinedPath);
-                        startActivity(intent);
-                    }else{
-                        timerHandler.postDelayed(this,500);
-                    }
-                }
-            },500);
-
-        }else{
-            intent.putExtra("videoPath",savedVideoPath);
-            startActivity(intent);
-        }
-        controller.releaseMediaPlayer();
+            }
+        },500);
     }
 
     /**
@@ -517,7 +500,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
      * upload the videos to xserver.
      */
     private void upload2tts(String userId, List<File>files, Callback callback){
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS).readTimeout(30,TimeUnit.SECONDS).build();
         MultipartBody.Builder requestBodyBuilder =new MultipartBody.Builder()
                 .setType(MultipartBody.FORM);
         int i = 0;
@@ -550,25 +533,44 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         ArrayList<EpVideo> epVideos = new ArrayList<>();
         epVideos.clear();
         for (String temp :paths) {
+
             Log.d(TAG, "combinedVideos: current = "+temp);
             epVideos.add(new EpVideo(temp));
         }
-        editorListener = new CombinedOnEditorListener(old,isCombined);
         FFmpegEditor.mergeByLc(root, epVideos, new FFmpegEditor.OutputOption(outFile), editorListener);
         return outFile;
     }
 
 
-    private void tts(String videoPath,String outfilePath,float speed){
-        EpEditor.changePTS(videoPath, outfilePath, speed, EpEditor.PTS.ALL, new OnEditorListener() {
+    private void tts(final List<String> filePath, final String rootPath, float speed){
+        Log.d(TAG, "tts: 视频压缩开始，压缩倍速："+speed);
+        if(filePath==null || filePath.size()==0){
+            if (outFiles.size()>1){
+                Log.d(TAG, "tts: 视频数量："+old.size());
+                Log.d(TAG, "tts: 压缩完成");
+                combinedPath = combinedVideos(outFiles);//这里进行压缩合成...并且跳转到下一个activity 要重写
+                Log.d(TAG, "gotoPreview: waiting for combined videos");
+            }
+            return;
+        }
+        int size = filePath.size();
+        String videoPath = filePath.remove(0);
+        Log.d(TAG, "tts: filePath size = "+size +"  current file is "+filePath);
+        final String outfile = rootPath+size+".mp4";
+        Log.d(TAG, "tts: out file:"+outfile);
+
+        EpEditor.changePTS(videoPath, rootPath+size+".mp4", speed, EpEditor.PTS.ALL, new OnEditorListener() {
             @Override
             public void onSuccess() {
-
+                outFiles.add(outfile);
+                Log.d(TAG, "onSuccess: 继续压缩");
+                tts(filePath,rootPath,1.6f);
             }
 
             @Override
             public void onFailure() {
-
+                Log.e(TAG, "onFailure: 视频压缩错误！" );
+                tts(filePath,rootPath,1.6f);
             }
 
             @Override
@@ -577,7 +579,6 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             }
         });
     }
-
 
     private void switchCamera(){
         releaseCamera();
@@ -752,6 +753,10 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
+    }
+
+    private abstract class OnTtsSuccessListner{
+        public abstract boolean isFinished();
     }
 
 }

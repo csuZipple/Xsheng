@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
@@ -420,9 +421,11 @@ public class PreviewActivity extends BaseActivity {
         try {
             //视频过滤
 //            check();
-            Log.d(TAG, "upload: 跳过视频过滤阶段...开始将视频文件上传到xsnet");
+            Log.d(TAG, "upload: 执行视频过滤...");
 
-            OkHttpClient client = new OkHttpClient();
+//            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder().connectTimeout(180, TimeUnit.SECONDS).readTimeout(180,TimeUnit.SECONDS).build();
+
             File video = new File(path);
             RequestBody fileBody = RequestBody.create(MediaType.parse("video/mp4"), video);
 
@@ -452,6 +455,8 @@ public class PreviewActivity extends BaseActivity {
                 }
             });
 
+            Log.d(TAG, "upload: 开始将视频文件上传到xsnet");
+
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -466,17 +471,22 @@ public class PreviewActivity extends BaseActivity {
 //                    Response response = client.newCall(request).execute();
                     Log.d(TAG, "upload: 上传到xsnet成功");
                     Gson gson  = new Gson();
+                    try{
 
-                    UTGson utGson = gson.fromJson(response.body().string(),UTGson.class);
-                    musicUrls = utGson.getData();
-                    Log.d(TAG, "upload: 解析返回json数据成功");
+                        UTGson utGson = gson.fromJson(response.body().string(),UTGson.class);
+                        musicUrls = utGson.getData();
+                        Log.d(TAG, "upload: 解析返回json数据成功");
 
-                    musics = depositMp3(musicUrls);
-                    Log.d(TAG, "upload: 下载mp3成功  size = "+musics.size());
+                        musics = depositMp3(musicUrls);
+                        Log.d(TAG, "upload: 下载mp3成功  size = "+musics.size());
 
 
-                    Log.d(TAG, "upload: 开始合成背景音乐");
-                    attachBgm(musics);
+                        Log.d(TAG, "upload: 开始合成背景音乐");
+                        attachBgm(musics);
+                    }catch (Exception e){
+                        Log.e(TAG, "onResponse: json或者下载mp3处理错误" );
+                        toastView("服务器数据处理错误",R.mipmap.error);
+                    }
 
                 }
             });
@@ -643,5 +653,9 @@ public class PreviewActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    private boolean fa(){
+        return check();
     }
 }

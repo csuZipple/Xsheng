@@ -277,6 +277,7 @@ public class FFmpegEditor  {
             for(Iterator var10 = epVideos.iterator(); var10.hasNext(); duration += d) {
                 EpVideo ep = (EpVideo)var10.next();
                 d = VideoUitls.getDuration(ep.getVideoPath());
+                Log.d("ffmpeg", "mergeByLc: duration = "+d);
                 if(d == 0L) {
                     break;
                 }
