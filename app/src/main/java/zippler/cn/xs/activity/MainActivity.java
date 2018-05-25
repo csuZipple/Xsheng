@@ -39,6 +39,7 @@ public class MainActivity extends BaseActivity {
         fragments = new ArrayList<>();
         //add fragments here
         VideoFragment fragment = new VideoFragment();
+        fragment.setContext(this);
         Video video = (Video) getIntent().getSerializableExtra("video");
         fragment.setDeployedVideo(video);
         fragments.add(fragment);

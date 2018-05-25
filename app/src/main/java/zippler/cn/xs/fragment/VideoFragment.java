@@ -1,8 +1,10 @@
 package zippler.cn.xs.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import zippler.cn.xs.R;
+import zippler.cn.xs.activity.MainActivity;
 import zippler.cn.xs.adapter.RecyclerVideoAdapter;
 import zippler.cn.xs.entity.Video;
 import zippler.cn.xs.gson.VideoGson;
@@ -42,6 +45,7 @@ import static android.content.ContentValues.TAG;
 public class VideoFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
+    private MainActivity context;
 
     private String[] defaultTitle ={"阳光正好，微风不燥",
             " 不是无情，亦非薄幸",
@@ -61,6 +65,7 @@ public class VideoFragment extends Fragment {
     public VideoFragment() {
         // Required empty public constructor
     }
+
 
 
     @Override
@@ -146,7 +151,12 @@ public class VideoFragment extends Fragment {
                     videos.add(0,deployedVideo);
                 }
                 Log.d(TAG, "onResponse: 数据加载完成");
-                recyclerView.getAdapter().notifyDataSetChanged();//may cause exception
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.getAdapter().notifyDataSetChanged();//may cause exception
+                    }
+                });
             }
         });
 
@@ -163,5 +173,15 @@ public class VideoFragment extends Fragment {
 
     public void setDeployedVideo(Video deployedVideo) {
         this.deployedVideo = deployedVideo;
+    }
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = (MainActivity) context;
     }
 }
