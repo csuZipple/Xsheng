@@ -102,6 +102,13 @@ public class DeployActivity extends BaseActivity {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.e(TAG, "onFailure: " );
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    toastView("上传失败",R.mipmap.error);
+                                    dialog.dismiss();
+                                }
+                            });
                         }
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {

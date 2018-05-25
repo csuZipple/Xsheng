@@ -98,6 +98,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
 
     private String combinedPath;
 
+    private ProgressDialog dialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +201,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
                 if (isRecordOn){ //oom
                     stop();
                 }
+                pauseTimer();
                 gotoPreview();
                 break;
             case R.id.pause_btn_c:
@@ -445,7 +448,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         tts(old, rootPath, 1.8f);
 
         //load a loading dialog
-        final ProgressDialog dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
+         dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
         final Handler timerHandler = new Handler();
 
         timerHandler.postDelayed(new Runnable() {
@@ -545,21 +548,31 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private void tts(final List<String> filePath, final String rootPath, float speed){
         Log.d(TAG, "tts: 视频压缩开始，压缩倍速："+speed);
         if(filePath==null || filePath.size()==0){
+            Log.d(TAG, "tts: 当前已经完成所有视频的压缩过程");
             if (outFiles.size()>1){
-                Log.d(TAG, "tts: 视频数量："+old.size());
-                Log.d(TAG, "tts: 压缩完成");
+                Log.d(TAG, "tts: 输出视频数量："+outFiles.size());
+                Log.d(TAG, "tts: 准备视频片段合成");
                 combinedPath = combinedVideos(outFiles);//这里进行压缩合成...并且跳转到下一个activity 要重写
                 Log.d(TAG, "gotoPreview: waiting for combined videos");
+            }else{
+                Log.d(TAG, "tts: 当前无多个视频片段，无需合成，直接跳转预览");
+                Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
+                intent.putExtra("videoPath",outFiles.get(outFiles.size()-1));
+                startActivity(intent);
+                dialog.dismiss();
+                controller.releaseMediaPlayer();
             }
             return;
         }
         int size = filePath.size();
         String videoPath = filePath.remove(0);
-        Log.d(TAG, "tts: filePath size = "+size +"  current file is "+filePath);
-        final String outfile = rootPath+size+".mp4";
+        Log.d(TAG, "tts: filePath size = "+size +"  current file is "+videoPath);
+        //还是使用时间戳
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        final String outfile = rootPath+"ys_"+timeStamp+".mp4";
         Log.d(TAG, "tts: out file:"+outfile);
 
-        EpEditor.changePTS(videoPath, rootPath+size+".mp4", speed, EpEditor.PTS.ALL, new OnEditorListener() {
+        EpEditor.changePTS(videoPath, outfile, speed, EpEditor.PTS.ALL, new OnEditorListener() {
             @Override
             public void onSuccess() {
                 outFiles.add(outfile);
