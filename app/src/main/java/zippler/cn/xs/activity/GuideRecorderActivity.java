@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import Jni.VideoUitls;
 import VideoHandle.EpEditor;
 import VideoHandle.EpVideo;
 import VideoHandle.OnEditorListener;
@@ -40,7 +41,6 @@ import zippler.cn.xs.R;
 import zippler.cn.xs.component.BarWavesView;
 import zippler.cn.xs.component.MediaController;
 import zippler.cn.xs.entity.Music;
-import zippler.cn.xs.handler.RecordTimerRunnable;
 import zippler.cn.xs.listener.CombinedOnEditorListener;
 import zippler.cn.xs.util.ColorUtil;
 import zippler.cn.xs.util.FFmpegEditor;
@@ -81,7 +81,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
     private boolean isFirstRecord = false;
 
     private float oldDist =1f;
-    private static final int DURATION = 15000 ;//set max video duration
+    private static final int DURATION = 20000 ;//set max video duration
 
     //listener
     private VideoCaptureDurationListener durationListener ;
@@ -89,14 +89,15 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
 
     //timer
     private Handler handler;
-    private RecordTimerRunnable runnable;
-    private int time = 15;//15s
+    private Runnable runnable;
+    private double time = 20;//15s
     private int progress = -1;
     private boolean isCombined = false;//combined video progress
 
     private String musicPath;
 
     private String combinedPath;
+    private String outputFile;//attach music
 
     private ProgressDialog dialog;
 
@@ -123,6 +124,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         nextStep = findViewById(R.id.next_step_c);
         record_circle_progress = findViewById(R.id.record_progress_c);
         record_line_progress = findViewById(R.id.record_line_progress_c);
+        record_line_progress.setMax(30);
+
         pauseBtn = findViewById(R.id.pause_btn_c);
 
         barWavesView = findViewById(R.id.music_guide);
@@ -206,6 +209,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
                 break;
             case R.id.pause_btn_c:
                 //waiting for combine video
+                //pause and
+                pause();
                 pause();
                 break;
             default:
@@ -340,10 +345,27 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
      */
     private void startTimer(){
         Log.d(TAG, "startTimer: ");
-        runnable = new RecordTimerRunnable(progress,time);
-        runnable.setHandler(handler);
-        runnable.setProgressBar(record_line_progress);
-        handler.postDelayed(runnable,1000);
+//        runnable = new RecordTimerRunnable(progress,time);
+//        runnable.setHandler(handler);
+//        runnable.setProgressBar(record_line_progress);
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                time =time-0.5;
+                if (time>0){
+                    progress++;
+                    record_line_progress.setProgress(progress);
+                    if (time==10.5){
+                        controller.stop();//pause
+                    }
+                    handler.postDelayed(this,500);
+                }else{
+                    //stop
+                    handler.removeCallbacks(this);
+                }
+            }
+        };
+        handler.postDelayed(runnable,0);
     }
 
     /**
@@ -351,8 +373,8 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
      */
     private void pauseTimer(){
         if (runnable!=null){
-            progress = runnable.getProgress();//get current progress
-            time = runnable.getTime();//get current remained time;
+//            progress = runnable.getProgress();//get current progress
+//            time = runnable.getTime();//get current remained time;
             handler.removeCallbacks(runnable);
             runnable = null;
             Log.d(TAG, "pauseTimer: pause timer");
@@ -447,7 +469,10 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
         //然后调用视频变速方法，最后合成
         String rootPath = FileUtil.getCamera2Path()+"videoCache/";
         editorListener = new CombinedOnEditorListener(old,isCombined);
-        tts(old, rootPath, 1.8f);
+        //音乐在第10秒的时候停止  视频继续录制  点击继续播放音乐 直到完成录制
+        double videoDuration = VideoUitls.getDuration(old.get(0))/1000000.0;
+        float speed = (float) (videoDuration/10.0);
+        tts(old, rootPath, speed);//计算变速倍速;
 
         //load a loading dialog
         dialog =  ProgressDialog.show(this,"合成中...","请稍后...",true);
@@ -459,11 +484,15 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
                 isCombined = editorListener.isFinished();
                 if (isCombined){
 
-                    dialog.dismiss();
+                    Log.d(TAG, "gotoPreview: waiting for combined videos");
+                    Log.d(TAG, "tts: 再添加背景音乐");
+                    attachBgm(combinedPath);
+
+                   /* dialog.dismiss();
                     Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
                     intent.putExtra("videoPath",combinedPath);
                     startActivity(intent);
-                    controller.releaseMediaPlayer();
+                    controller.releaseMediaPlayer();*/
                 }else{
                     timerHandler.postDelayed(this,500);
                 }
@@ -556,7 +585,6 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
                 Log.d(TAG, "tts: 输出视频数量："+outFiles.size());
                 Log.d(TAG, "tts: 准备视频片段合成");
                 combinedPath = combinedVideos(outFiles);//这里进行压缩合成...并且跳转到下一个activity 要重写
-                Log.d(TAG, "gotoPreview: waiting for combined videos");
             }else{
                 Log.d(TAG, "tts: 当前无多个视频片段，无需合成，直接跳转预览");
                 Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
@@ -580,13 +608,13 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             public void onSuccess() {
                 outFiles.add(outfile);
                 Log.d(TAG, "onSuccess: 继续压缩");
-                tts(filePath,rootPath,1.6f);
+                tts(filePath,rootPath,1.0f);//只变速第一个
             }
 
             @Override
             public void onFailure() {
                 Log.e(TAG, "onFailure: 视频压缩错误！" );
-                tts(filePath,rootPath,1.6f);
+                tts(filePath,rootPath,1.0f);
             }
 
             @Override
@@ -595,6 +623,36 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             }
         });
     }
+
+    private  void attachBgm(String videoIn){
+        String audioin = FileUtil.getCamera2Path()+"duang.mp3";
+        String cache = "videoCache"+File.separator;
+        FileUtil.createSavePath(FileUtil.getCamera2Path()+cache);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        outputFile= FileUtil.getCamera2Path()+cache+"ys_"+timeStamp+".mp4";
+        FFmpegEditor.music(videoIn, audioin, outputFile, 0, 1.0f, new OnEditorListener() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "onSuccess: 音频合成完成");
+                Intent intent = new Intent(GuideRecorderActivity.this,PreviewActivity.class);
+                intent.putExtra("videoPath",outputFile);
+                startActivity(intent);
+                dialog.dismiss();
+                controller.releaseMediaPlayer();
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+
+            @Override
+            public void onProgress(float v) {
+
+            }
+        });
+    }
+
 
     private void switchCamera(){
         releaseCamera();
@@ -718,6 +776,7 @@ public class GuideRecorderActivity extends BaseActivity implements TextureView.S
             if(what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED){
                 Log.d("DurationListener", "Maximum Duration Reached");
                 stop();
+                pauseTimer();
                 gotoPreview();
             }
         }

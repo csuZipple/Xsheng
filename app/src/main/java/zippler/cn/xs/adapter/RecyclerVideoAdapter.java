@@ -129,15 +129,11 @@ public class RecyclerVideoAdapter extends RecyclerView.Adapter<VideoViewHolder> 
             @Override
             public void onClick(View v) {
                 playBtn.setVisibility(View.INVISIBLE);
-                poster.setVisibility(View.INVISIBLE);
-                videoView.start();
-            }
-        });
-        poster.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playBtn.setVisibility(View.INVISIBLE);
-                poster.setVisibility(View.INVISIBLE);
+//                poster.setVisibility(View.INVISIBLE);
+                poster.setVisibility(View.GONE);
+                poster.clearAnimation();
+                poster.postInvalidate();
+
                 videoView.start();
             }
         });

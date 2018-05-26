@@ -84,8 +84,8 @@ public class MusicChooseActivity extends BaseActivity {
     private void initMusic(){
         musicList = new ArrayList<>();
         MediaPlayer player;
-        //add music data here . it also can be load from internet
-        String[] names= {"Tank Battle","Horizontal"};
+        //add music data here . it also can be load from internete
+        String[] names= {"Tank Battle","Horizontal","Duang"};
         for (int i = 1; i <= 1; i++) {
             Music temp = new Music();
             temp.setName(names[i-1]);
@@ -102,6 +102,16 @@ public class MusicChooseActivity extends BaseActivity {
             Music s = new Music();
             s.setName(names[i-1]);
             s.setLocalStorageUrl(getCamera2Path()+"j.mp3");
+            player = MediaPlayer.create(this,Uri.parse(s.getLocalStorageUrl()));
+            s.setDuration(player.getDuration());
+            s.setLength(player.getDuration());
+
+            musicList.add(s);
+        }
+        for (int i = 3; i <= 3; i++) {
+            Music s = new Music();
+            s.setName(names[i-1]);
+            s.setLocalStorageUrl(getCamera2Path()+"duang.mp3");
             player = MediaPlayer.create(this,Uri.parse(s.getLocalStorageUrl()));
             s.setDuration(player.getDuration());
             s.setLength(player.getDuration());

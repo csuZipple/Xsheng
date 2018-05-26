@@ -20,6 +20,7 @@ import zippler.cn.xs.R;
 public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdapter.MusicHolder> {
 
     private ArrayList<String> data;
+    private String[] titles = {"大钢琴","尼龙弦吉他","小提琴","原生贝斯"};
     private Context c;
 
     public RecyclerMusicAdapter(Context c , ArrayList<String> data) {
@@ -42,7 +43,7 @@ public class RecyclerMusicAdapter extends RecyclerView.Adapter<RecyclerMusicAdap
             holder.getTextView().setText(data.get(position));
             holder.getRelativeLayout().setBackgroundColor(c.getResources().getColor(R.color.colorBlack2));
         }else{
-            holder.getTextView().setText((position+1)+"");
+            holder.getTextView().setText(titles[position]);
         }
         holder.getTextView().setVisibility(View.VISIBLE);
     }
